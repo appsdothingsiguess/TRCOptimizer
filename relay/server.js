@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const path = require("path");
+const util = require("util");
 const { spawn } = require("child_process");
 const { WebSocketServer, WebSocket } = require("ws");
 
@@ -11,9 +12,16 @@ let session = { iiq_ticket: null, asset_tag: null, tech_initials: null };
 let extensionWs = null;
 const frontendClients = new Set();
 
-const app = express();
-app.use(express.json({ limit: "10mb" }));
-app.use(express.static(path.join(__dirname, "../frontend")));
+let lastIntakeResult = null;
+const extensionLog = [];
+const relayLog = [];
+
+function pushLog(arr, entry, max = 100) {
+  arr.push(entry);
+  while (arr.length > max) {
+    arr.shift();
+  }
+}
 
 function broadcastToFrontend(obj) {
   const message = JSON.stringify(obj);
@@ -23,6 +31,52 @@ function broadcastToFrontend(obj) {
     }
   }
 }
+
+function formatConsoleArgs(args) {
+  return args
+    .map((arg) => {
+      if (typeof arg === "string") return arg;
+      try {
+        return util.inspect(arg, { depth: 2, breakLength: Infinity });
+      } catch {
+        return String(arg);
+      }
+    })
+    .join(" ");
+}
+
+const _log = console.log.bind(console);
+const _error = console.error.bind(console);
+
+console.log = (...args) => {
+  const entry = {
+    ts: new Date().toISOString(),
+    level: "info",
+    message: formatConsoleArgs(args),
+  };
+  pushLog(relayLog, entry);
+  broadcastToFrontend({ type: "log", source: "relay", entry });
+  _log(...args);
+};
+
+console.error = (...args) => {
+  const entry = {
+    ts: new Date().toISOString(),
+    level: "error",
+    message: formatConsoleArgs(args),
+  };
+  pushLog(relayLog, entry);
+  broadcastToFrontend({ type: "log", source: "relay", entry });
+  _error(...args);
+};
+
+const app = express();
+app.use(express.json({ limit: "10mb" }));
+app.use(express.static(path.join(__dirname, "../frontend")));
+
+app.get("/debug", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/debug.html"));
+});
 
 app.post("/start-intake", (req, res) => {
   const { iiq_ticket, asset_tag, tech_initials } = req.body || {};
@@ -81,6 +135,7 @@ app.post("/extension-data", async (req, res) => {
     });
 
     const data = await response.json();
+    lastIntakeResult = data;
 
     if (data.success) {
       broadcastToFrontend({
@@ -101,6 +156,45 @@ app.post("/extension-data", async (req, res) => {
   } catch (err) {
     broadcastToFrontend({ type: "error", message: "Backend unreachable" });
     return res.json({ success: false, error: "Backend unreachable" });
+  }
+});
+
+app.post("/extension-log", (req, res) => {
+  const { level, step, message } = req.body || {};
+  const validLevels = ["info", "warn", "error"];
+
+  if (!validLevels.includes(level)) {
+    return res.status(400).json({ ok: false, error: "Invalid level" });
+  }
+  if (typeof step !== "string" || typeof message !== "string") {
+    return res.status(400).json({ ok: false, error: "step and message must be strings" });
+  }
+
+  const entry = { ts: new Date().toISOString(), level, step, message };
+  pushLog(extensionLog, entry);
+  broadcastToFrontend({ type: "log", source: "extension", entry });
+  return res.json({ ok: true });
+});
+
+app.get("/debug-state", (req, res) => {
+  res.json({
+    relayUp: true,
+    extensionConnected: extensionWs !== null && extensionWs.readyState === WebSocket.OPEN,
+    session: { ...session },
+    lastIntakeResult,
+    extensionLog: [...extensionLog],
+    relayLog: [...relayLog],
+  });
+});
+
+app.get("/backend-health", async (req, res) => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/", {
+      signal: AbortSignal.timeout(2000),
+    });
+    return res.json({ fastApiUp: true, status: response.status });
+  } catch {
+    return res.json({ fastApiUp: false });
   }
 });
 

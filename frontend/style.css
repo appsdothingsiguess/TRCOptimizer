@@ -1,0 +1,134 @@
+:root {
+  --lisd-navy: #073772;
+  --lisd-gold: #f1b51c;
+  --lisd-blue-link: #3366CC;
+  --lisd-dark: #102738;
+  --lisd-gray-body: #3a3a3a;
+  --lisd-gray-border: #D4D8E1;
+  --lisd-gray-light: #F1F4F6;
+  --lisd-white: #FFFFFF;
+  --lisd-green: #0b6e27;
+  --lisd-error: #B63D4B;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lisd-gray-light);
+  margin: 0;
+  padding: 16px;
+}
+
+.card {
+  background: var(--lisd-white);
+  width: 100%;
+  max-width: 480px;
+  border-top: 4px solid var(--lisd-navy);
+  border: 1px solid var(--lisd-gray-border);
+  border-radius: 4px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  background: var(--lisd-navy);
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  margin: -32px -32px 24px -32px;
+  border-radius: 0;
+}
+
+.card-header img {
+  max-height: 32px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--lisd-gray-body);
+  margin-bottom: 4px;
+}
+
+input[type="text"] {
+  height: 40px;
+  border: 1px solid var(--lisd-gray-border);
+  border-radius: 4px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  color: var(--lisd-dark);
+  width: 100%;
+}
+
+input[type="text"]:focus {
+  border: 2px solid var(--lisd-blue-link);
+  outline: none;
+}
+
+#run-intake {
+  height: 40px;
+  border-radius: 4px;
+  border: none;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  width: 100%;
+  margin-top: 8px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+#run-intake:not(:disabled) {
+  background: var(--lisd-navy);
+  color: var(--lisd-white);
+}
+
+#run-intake:not(:disabled):hover {
+  background: #122C4B;
+}
+
+#run-intake:disabled {
+  background: var(--lisd-gray-border);
+  color: #595959;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+#status {
+  display: none;
+  padding: 12px;
+  margin-top: 16px;
+  font-size: 13px;
+  border-radius: 4px;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  color: var(--lisd-dark);
+}
+
+.status-success {
+  display: block;
+  border-left: 3px solid var(--lisd-green);
+  background: rgba(11, 110, 39, 0.06);
+  color: var(--lisd-dark);
+}
+
+.status-error {
+  display: block;
+  border-left: 3px solid var(--lisd-error);
+  background: rgba(182, 61, 75, 0.06);
+  color: var(--lisd-dark);
+}

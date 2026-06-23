@@ -2,6 +2,7 @@
 
 const RELAY_WS   = "ws://localhost:4321/ws";
 const RELAY_HTTP = "http://localhost:4321/extension-data";
+const RELAY_LOG  = "http://localhost:4321/extension-log";
 const RECONNECT_DELAY_MS = 3000;
 
 let ws = null;
@@ -13,6 +14,7 @@ function connect() {
 
   ws.onopen = () => {
     console.log("[TRC_Opt] Connected to relay");
+    sendExtLog("info", "ws", "Extension WebSocket connected");
   };
 
   ws.onmessage = (event) => {
@@ -31,6 +33,7 @@ function connect() {
 
   ws.onclose = () => {
     console.log("[TRC_Opt] Relay disconnected — retrying in", RECONNECT_DELAY_MS, "ms");
+    sendExtLog("warn", "ws", "Extension WebSocket closed");
     ws = null;
     setTimeout(connect, RECONNECT_DELAY_MS);
   };
@@ -40,6 +43,14 @@ function connect() {
   };
 }
 
+function sendExtLog(level, step, message) {
+  fetch(RELAY_LOG, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ level, step, message }),
+  }).catch(() => {});
+}
+
 function sendStatus(step, message) {
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify({ type: "status", step, message }));
@@ -47,6 +58,7 @@ function sendStatus(step, message) {
 }
 
 function sendError(step, message) {
+  sendExtLog("error", step, message);
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify({ type: "error", step, message }));
   }
@@ -54,19 +66,70 @@ function sendError(step, message) {
 
 // ---------- Intake orchestration ----------
 
+function isI3TabUrl(url) {
+  return Boolean(url && url !== "about:blank" && url.includes("ims.lisd.net"));
+}
+
+function waitForTabLoad(tabId, timeoutMs = 15000) {
+  return new Promise((resolve, reject) => {
+    let timeoutId;
+
+    function cleanup() {
+      browser.tabs.onUpdated.removeListener(onUpdated);
+      clearTimeout(timeoutId);
+    }
+
+    function tryResolve(tab) {
+      if (tab.status === "complete" && isI3TabUrl(tab.url)) {
+        cleanup();
+        resolve(tab);
+      }
+    }
+
+    function onUpdated(updatedTabId, changeInfo, tab) {
+      if (updatedTabId !== tabId) return;
+      if (changeInfo.status === "complete") {
+        tryResolve(tab);
+      }
+    }
+
+    browser.tabs.onUpdated.addListener(onUpdated, { tabId });
+
+    // Race guard — tab may already be complete before listener attaches (Firefox Bug 1418655)
+    browser.tabs.get(tabId).then(tryResolve).catch(() => {});
+
+    timeoutId = setTimeout(() => {
+      cleanup();
+      reject(new Error("timeout"));
+    }, timeoutMs);
+  });
+}
+
 async function handleStartIntake(assetTag) {
+  sendExtLog("info", "intake", "start_intake received for tag: " + assetTag);
   sendStatus("init", "Extension received intake request");
 
-  // Find the active ims.lisd.net tab
   const tabs = await browser.tabs.query({ url: "https://ims.lisd.net/*" });
-  if (tabs.length === 0) {
-    sendError("init", "No ims.lisd.net tab found — open i3 in Firefox and log in");
-    return;
+  let tab;
+
+  if (tabs.length > 0) {
+    tab = tabs[0];
+    sendExtLog("info", "tab", "Found existing i3 tab id: " + tab.id);
+    sendStatus("init", "Found i3 tab — running lookup");
+  } else {
+    sendStatus("init", "Opening i3 tab — waiting for load");
+    const newTab = await browser.tabs.create({ url: "https://ims.lisd.net" });
+    sendExtLog("info", "tab", "Created new i3 tab, waiting for load");
+    try {
+      tab = await waitForTabLoad(newTab.id);
+    } catch {
+      sendExtLog("error", "tab", "i3 tab load timeout");
+      sendError("init", "i3 tab timed out loading — try again");
+      return;
+    }
   }
 
-  const tab = tabs[0];
-  sendStatus("init", "Found i3 tab — running lookup");
-
+  sendExtLog("info", "content", "Sent run_intake to content.js");
   let result;
   try {
     result = await browser.tabs.sendMessage(tab.id, {
@@ -89,6 +152,7 @@ async function handleStartIntake(assetTag) {
   }
 
   if (result.type === "device_ready") {
+    sendExtLog("info", "content", "device_ready received, serial: " + result.serial);
     sendStatus("submit", "Device data received — submitting to relay");
     await submitToRelay(result);
     return;
@@ -98,6 +162,7 @@ async function handleStartIntake(assetTag) {
 }
 
 async function submitToRelay(result) {
+  sendExtLog("info", "relay", "POSTing to /extension-data");
   try {
     const resp = await fetch(RELAY_HTTP, {
       method: "POST",
@@ -111,10 +176,13 @@ async function submitToRelay(result) {
     });
     const data = await resp.json();
     if (!data.success) {
-      sendError("submit", data.error || "Backend returned failure");
+      const message = data.error || "Backend returned failure";
+      sendExtLog("error", "relay", "POST /extension-data failed: " + message);
+      sendError("submit", message);
     }
     // On success the relay broadcasts done to the frontend — nothing more to do
   } catch (e) {
+    sendExtLog("error", "relay", "POST /extension-data failed: " + e.message);
     sendError("submit", "Failed to reach relay HTTP endpoint: " + e.message);
   }
 }

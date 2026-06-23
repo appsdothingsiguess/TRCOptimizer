@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRC Optimizer — Debug</title>
+  <link rel="stylesheet" href="debug.css">
+  <script src="debug.js" defer></script>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <img src="assets/lisd-logo.png" alt="LISD Logo">
+    </div>
+
+    <h1 class="debug-title">TRC Optimizer — Debug</h1>
+
+    <section class="debug-section" aria-labelledby="section-health">
+      <h2 id="section-health" class="section-heading">Layer Health</h2>
+      <div class="status-grid">
+        <div id="tile-relay" class="status-tile">
+          <span class="tile-label">Relay</span>
+          <span class="badge badge-unknown">UNKNOWN</span>
+        </div>
+        <div id="tile-fastapi" class="status-tile">
+          <span class="tile-label">FastAPI</span>
+          <span class="badge badge-unknown">UNKNOWN</span>
+        </div>
+        <div id="tile-extension" class="status-tile">
+          <span class="tile-label">Extension</span>
+          <span class="badge badge-unknown">UNKNOWN</span>
+        </div>
+        <div id="tile-i3" class="status-tile">
+          <span class="tile-label">i3 API</span>
+          <span class="badge badge-unknown">UNKNOWN</span>
+          <span class="tile-note" hidden></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="debug-section" aria-labelledby="section-intake">
+      <h2 id="section-intake" class="section-heading">Last Intake</h2>
+      <div class="session-row">
+        <span class="session-item">IIQ: <span id="session-iiq">—</span></span>
+        <span class="session-item">Tag: <span id="session-tag">—</span></span>
+        <span class="session-item">Tech: <span id="session-tech">—</span></span>
+      </div>
+      <pre id="last-intake">No intake result yet.</pre>
+    </section>
+
+    <section class="debug-section" aria-labelledby="section-live">
+      <h2 id="section-live" class="section-heading">Live Feed</h2>
+      <div id="live-feed" class="log-panel">
+        <p class="log-placeholder">Waiting for activity…</p>
+      </div>
+    </section>
+
+    <section class="debug-section" aria-labelledby="section-ext-log">
+      <h2 id="section-ext-log" class="section-heading">Extension Log</h2>
+      <div id="ext-log" class="log-panel">
+        <p class="log-placeholder">No extension log entries.</p>
+      </div>
+    </section>
+
+    <section class="debug-section" aria-labelledby="section-relay-log">
+      <h2 id="section-relay-log" class="section-heading">Relay Log</h2>
+      <div id="relay-log" class="log-panel">
+        <p class="log-placeholder">No relay log entries.</p>
+      </div>
+    </section>
+
+    <div class="refresh-row">
+      <button type="button" id="refresh">Refresh</button>
+      <p class="refresh-note">Health and logs refresh automatically every 5 seconds.</p>
+    </div>
+  </div>
+</body>
+</html>
