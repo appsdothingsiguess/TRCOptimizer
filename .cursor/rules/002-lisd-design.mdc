@@ -1,0 +1,103 @@
+---
+description: "LISD brand design system — apply to all frontend HTML, CSS, and TypeScript files"
+globs: ["frontend/**/*.html", "frontend/**/*.css", "frontend/**/*.ts", "frontend/**/*.js"]
+alwaysApply: true
+---
+
+# LISD Brand Design System
+
+This tool is an official LISD internal staff application. Every visual decision must match the Lewisville ISD brand identity as confirmed from the live LISD style guide (lisd.net/production2). Staff who use this tool also use official LISD websites daily — the UI must look like it belongs to the same organization.
+
+## Color Tokens — confirmed from LISD CMS source CSS, use exactly
+
+```css
+/* Primary brand — from :root CSS variables on lisd.net */
+--lisd-navy:        #073772;   /* --primary-color: the dominant brand color; headers, card surfaces, nav bars, active states */
+--lisd-gold:        #f1b51c;   /* --secondary-color: accent only — highlights, focus rings, badge indicators; never large fills */
+
+/* Interactive blues — from CMS component styles */
+--lisd-blue-mid:    #254A95;   /* interactive blue used in chat bubbles and links on dark backgrounds */
+--lisd-blue-link:   #3366CC;   /* hyperlink color on white backgrounds */
+--lisd-blue-hover:  #122C4B;   /* hover state for dark buttons */
+
+/* Neutrals — from CMS named color map */
+--lisd-dark:        #102738;   /* dark blue-black for heading text on light backgrounds */
+--lisd-gray-body:   #3a3a3a;   /* body text color on white */
+--lisd-gray-mid:    #595959;   /* secondary/muted text */
+--lisd-gray-border: #D4D8E1;   /* input borders and card borders (named: input-border) */
+--lisd-gray-light:  #F1F4F6;   /* page background (named: lightest-gray) */
+--lisd-white:       #FFFFFF;   /* card surfaces, text on dark backgrounds */
+
+/* Status — from CMS alert/error styles */
+--lisd-green:       #0b6e27;   /* success text and left-border accents */
+--lisd-error:       #B63D4B;   /* error text */
+--lisd-error-bg:    #CF4656;   /* error badges and destructive button backgrounds */
+--lisd-warning:     #E57200;   /* warning states */
+```
+
+## Typography
+
+**Primary font stack (always use this order):**
+```css
+font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+```
+
+The LISD CMS uses `proxima-nova` (Adobe licensed) but this is unavailable on LISD Windows machines without a separate install. The CMS fallback chain is `"Helvetica Neue", Helvetica, Arial, sans-serif`. For a local Windows tool, lead with `Arial` since it is guaranteed present.
+
+Rules:
+- Never use Inter, Roboto, Open Sans, Lato, Montserrat, or any CDN font import
+- Never use `system-ui` or `-apple-system` — this runs on Windows only
+- Monospace (asset tags, serials, ticket numbers): `"Courier New", Courier, monospace`
+- Heading weight: bold (700). Body weight: regular (400). Labels: 400 or 500.
+
+## Layout
+
+- Page background: `--lisd-gray-light` (#F1F4F6)
+- Each workflow = one centered card, white surface, max-width 480px for intake forms
+- Card has 4px top border accent in `--lisd-navy`, 1px border `--lisd-gray-border`, border-radius 4px
+- Internal card padding: 32px top/bottom, 32px left/right
+- 8px base grid for all spacing
+- No sidebar, no tabs, no navigation — single-purpose per screen
+
+## Component Specs
+
+**Inputs:**
+- Border: 1px solid `--lisd-gray-border` (#D4D8E1); focused: 2px solid `--lisd-blue-link` (#3366CC)
+- Background: `--lisd-white`; label above, `--lisd-gray-body`, Arial 13px font-weight 500
+- Height: 40px; border-radius: 4px; padding: 0 12px
+
+**Primary button (Run Intake, Submit):**
+- Background: `--lisd-navy` (#073772); text: `--lisd-white`; Arial bold 14px; letter-spacing: 0.02em
+- Hover: `--lisd-blue-hover` (#122C4B)
+- Disabled: `--lisd-gray-border` background, `--lisd-gray-mid` text, cursor: not-allowed, opacity: 0.6
+- Height: 40px; border-radius: 4px; no extra box-shadow
+
+**Header bar:**
+- Background: `--lisd-navy` (#073772); text: white; height: 48px
+- Left-aligned logo (supplied separately) with 16px horizontal padding
+- No navigation links
+
+**Status area:**
+- Arial 13px, `--lisd-gray-body`; inline text updates, no animation
+- Success: 3px left border `--lisd-green` (#0b6e27), background rgba(11,110,39,0.06)
+- Error: 3px left border `--lisd-error` (#B63D4B), background rgba(182,61,75,0.06)
+
+**Gold accent usage (`--lisd-gold` #f1b51c):**
+- Use only for small UI signals: focus ring on the asset tag input (the scanner target), active field indicator
+- Never use as a button background or large fill
+- Always pair with `--lisd-navy` or `--lisd-dark` text for contrast
+
+## Accessibility
+
+- All text on `--lisd-navy` backgrounds must use `--lisd-white` — confirmed 5:1+ contrast ratio
+- All interactive elements must have visible focus state — never `outline: none` without a visible replacement
+- Every input must have an explicit `<label for="">` — no placeholder-as-label
+- Color alone never conveys state — always pair with a text label
+
+## Do not do
+
+- No Google Fonts or any CDN font import whatsoever
+- No CSS animations or transitions on status text — plain DOM text updates only
+- No gradients on the primary card surface
+- No border-radius larger than 4px on card or inputs (LISD visual language is clean and rectilinear)
+- No use of `--lisd-gold` for large backgrounds or primary actions

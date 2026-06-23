@@ -1,0 +1,62 @@
+---
+description: "Frontend UX behavior rules for TRC_Opt workflow screens"
+globs: ["frontend/**/*.html", "frontend/**/*.ts", "frontend/**/*.js"]
+alwaysApply: false
+---
+
+# Frontend UX Behavior
+
+## Core Principle
+
+Techs should have to touch the keyboard as little as possible. The scanner does the work. Every interaction the tech has to initiate manually is a failure in the design.
+
+## Input and Focus
+
+- On page load, the Asset Tag field receives focus automatically (`autofocus` attribute + explicit `element.focus()` on `DOMContentLoaded`)
+- After a scan is detected (input event + 300ms debounce with no further keystrokes), move focus automatically:
+  - If IIQ Ticket is empty → move focus to IIQ Ticket field
+  - If IIQ Ticket is already filled → enable the Submit button and move focus to it
+- Tech Initials field: only needs focus if the tech clicks it — do not auto-advance to it
+- Tab order must be: Asset Tag → IIQ Ticket → Tech Initials → Submit button
+
+## Button State
+
+- Submit button is disabled until all three fields have non-empty values
+- Check all three on every `input` event across all three fields
+- Disabled button: `--lisd-gray-mid` background, `cursor: not-allowed`, `opacity: 0.6`
+- Enabled button: `--lisd-navy` background, white text, hover state `--lisd-blue`
+
+## Status Area
+
+The status area below the Submit button shows plain-language progress. Update it in place — no page navigation, no modals, no spinners.
+
+Exact message strings (use these exactly for consistency):
+- `"Downloading i3 report..."`
+- `"Parsing device data..."`
+- `"Scraping device history..."`
+- `"Counting breaks..."`
+- `"Writing to Excel..."`
+- `"Done — [ProductName] | Serial: [X] | Campus: [Y] | Breaks: [Z]"`
+- `"Error: [plain English description of what failed and what the tech should do]"`
+
+Success state: 3px left border in `--lisd-green`, background `rgba(132,189,0,0.08)`
+Error state: 3px left border in `--lisd-error`, background `rgba(192,57,43,0.08)`
+
+Status updates arrive via the WebSocket connection from the relay, not via polling.
+
+## Form Reset
+
+After a successful intake, wait 3 seconds, then:
+1. Clear all three input fields
+2. Reset status area to empty
+3. Return focus to Asset Tag field
+4. Re-disable the Submit button
+
+This allows the next device to be scanned immediately without any tech action.
+
+## No extras
+
+- No spinners, loaders, or animations
+- No confirmation dialogs or modals
+- No navigation, tabs, or multi-step flows
+- No help text, tooltips, or hover labels — the UI should be self-evident to a tech who has been trained once

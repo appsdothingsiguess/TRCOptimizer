@@ -1,0 +1,32 @@
+---
+description: "Agent security boundaries and hard stops for TRC_Opt — always enforced"
+alwaysApply: true
+---
+
+# Agent Security Boundaries
+
+These constraints exist because this tool runs on LISD network infrastructure. Violations could affect district systems or violate IT policy.
+
+## Hard stops — stop and ask before proceeding
+
+🚫 Do not install any npm or pip package not already in `package.json` or `requirements.txt` without asking.
+
+🚫 Do not open any port other than 4321 for the relay. FastAPI must remain internal.
+
+🚫 Do not write credentials, usernames, passwords, or tokens to any file — ever. Memory only.
+
+🚫 Do not modify Excel cell formatting, fonts, fills, borders, or number formats — write cell values only. The Excel files have pre-formatted rows that must be preserved.
+
+🚫 Do not add network requests from the frontend directly to FastAPI. All frontend communication goes through the Node relay.
+
+🚫 Do not add any code that calls external APIs or sends data outside the local network.
+
+🚫 Do not commit or push to any remote repository without explicit instruction.
+
+## Scope discipline
+
+Each workflow (MacBook intake, future workflows) has its own module files. When working on one workflow, do not modify shared infrastructure (relay/server.js, main.py FastAPI app) unless the task explicitly requires it and you have confirmed the change is backward-compatible with all other workflows.
+
+## On uncertainty
+
+If a task requires a change that isn't covered by existing rules or specs, stop and describe what you need to change and why before making it. Do not infer permission from the absence of a prohibition.

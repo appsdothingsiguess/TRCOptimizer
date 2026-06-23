@@ -1,0 +1,65 @@
+---
+description: "Firefox extension conventions for TRC_Opt browser automation"
+globs: ["extension/**/*.js", "extension/**/*.json"]
+alwaysApply: false
+---
+
+# Firefox Extension Conventions
+
+## Manifest
+
+- MV2 only — not MV3. LISD machines run Firefox, and MV2 is the correct target.
+- Required permissions: `tabs`, `downloads`, `storage`, `http://ims.lisd.net/*`, `http://localhost:4321/*`
+- No extra permissions without explicit instruction
+
+## WebSocket Connection (background.js)
+
+- Connect to `ws://localhost:4321/ws` on install and maintain the connection
+- Reconnect with exponential backoff on disconnect — max 5 retries, then surface error to relay
+- All messages are JSON: `{ "type": "command_name", "payload": { ... } }`
+- Never use `chrome.*` APIs — use `browser.*` (Firefox WebExtension API)
+
+## DOM Automation (content.js)
+
+All DOM interactions must use explicit waits, never `setTimeout` for sequencing.
+
+Use this pattern for waiting on elements:
+```javascript
+function waitForElement(selector, timeoutMs = 10000) {
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(selector);
+    if (existing) return resolve(existing);
+    const observer = new MutationObserver(() => {
+      const el = document.querySelector(selector);
+      if (el) { observer.disconnect(); resolve(el); }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => { observer.disconnect(); reject(new Error(`Timeout waiting for: ${selector}`)); }, timeoutMs);
+  });
+}
+```
+
+Every automation step has a 10-second timeout. On timeout, send a failure message back to the relay with the step name and selector that failed.
+
+## Selector Strategy
+
+- Prefer `data-*` attributes and stable IDs over positional or class-based selectors
+- Never use nth-child or sibling combinators for navigation — i3 DOM structure will change
+- If no stable attribute exists, use the innerText of a button/label as the selector signal, not its position
+- Comment every selector with why it was chosen: `// data-testid="site-filter" — stable across i3 versions`
+
+## File Download Watcher
+
+- Watch `C:\Users\[username]\Downloads` for files matching `report*.csv` (glob, not exact match)
+- Handle increment suffix: `report (1).csv`, `report (2).csv` — match the most recently modified file
+- Read file contents, send to relay, then signal completion
+- Never hardcode the username — resolve it dynamically: `navigator.userAgent` won't work; the background script must use `browser.downloads.search` to find the download path
+
+## Error Reporting
+
+Every error sent back to the relay uses this shape:
+```json
+{ "type": "error", "step": "step_name", "message": "plain English description" }
+```
+
+Never swallow errors silently. Every step that can fail must have a catch block that reports back.

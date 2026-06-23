@@ -1,0 +1,35 @@
+---
+description: "TRC_Opt project base stack, architecture, and non-negotiable constraints"
+alwaysApply: true
+---
+
+# TRC_Opt — Base Stack and Architecture
+
+## Project Identity
+
+This is a local internal tool for LISD TRC (Technology Repair Center) staff. It automates data entry and workflow tasks. It runs entirely on one Windows machine on the local LISD network. There are no external users, no cloud deployment, and no authentication layer beyond session-held credentials.
+
+## Stack — Use exactly these, never substitute
+
+- **Relay**: Node.js, port 4321, serves frontend and bridges extension to backend
+- **Backend**: Python with FastAPI — internal only, never exposed to network
+- **Frontend**: HTML, CSS, TypeScript compiled to JS, Tailwind CDN — no React, no Astro, no frameworks
+- **Browser automation**: Firefox extension (MV2) — no Playwright, no Selenium
+- **Excel**: openpyxl only — never xlwings, never xlrd, never xlsxwriter
+- **Database**: none for current scope — SQLite only if explicitly approved
+
+## Architecture is fixed — do not redesign it
+
+```
+Firefox Extension → WebSocket → Node.js Relay (4321) → FastAPI (internal) → openpyxl → .xlsx
+```
+
+The frontend is served by Node at `http://[local-ip]:4321`. FastAPI is a subprocess, never port-exposed. The extension connects to the relay via WebSocket on localhost only.
+
+## Agent boundaries
+
+✅ Always: Follow existing patterns in the file you are editing. Run logic through FastAPI, never in Node or the frontend.
+
+⚠️ Ask first: Any new dependency (npm or pip), any change to the relay/backend communication contract, any new port or network exposure.
+
+🚫 Never: Add a database without explicit instruction. Add authentication or session management. Change the relay port. Expose FastAPI to the network. Modify Excel cell formatting — write values only.

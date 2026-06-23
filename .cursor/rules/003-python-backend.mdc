@@ -1,0 +1,49 @@
+---
+description: "Python FastAPI backend conventions for TRC_Opt"
+globs: ["backend/**/*.py"]
+alwaysApply: false
+---
+
+# Python Backend Conventions
+
+## FastAPI Structure
+
+- Single app in `main.py` — one `/process` endpoint per workflow, no routers unless explicitly added
+- All business logic lives in separate modules (`csv_parser.py`, `excel_writer.py`, `break_counter.py`) — `main.py` only orchestrates
+- Each module exposes one primary function, clearly named, with typed inputs and outputs
+- Use `pydantic` models for all request bodies — never raw `dict` from FastAPI
+- Return `{ "success": true, ...data }` or `{ "success": false, "error": "plain English description" }` — no HTTP 4xx/5xx for business logic failures
+
+## openpyxl Rules — critical, never violate
+
+- Load with: `openpyxl.load_workbook(path)` — never `read_only=True` when writing
+- Write values only: assign to `cell.value` — never touch `.font`, `.fill`, `.border`, `.alignment`, `.number_format`
+- Find target row dynamically: iterate column B from row 4 downward, find first cell where `.value is None`
+- Row 3 is template data — always start checking from row 4, never row 3
+- Save with `wb.save(path)` after every write
+- Never assume the file is open in Excel — but also never leave the file open after saving
+
+## CSV Parsing
+
+- Load with `pd.read_csv(filepath)`
+- Strip whitespace from all string values before comparison: `str(val).strip()`
+- Drop columns where header starts with `Unnamed`
+- Raise a named exception class (`TagNotFoundError`) when no match is found — never return `None` silently
+- Delete the CSV file after successful parse
+
+## Date Handling
+
+- i3 history dates are in format `MM-DD-YYYY HH:MM` — parse with `datetime.strptime(date_str, "%m-%d-%Y %H:%M")`
+- Excel date values: write a `datetime.date` object directly — let openpyxl handle formatting
+- Never write date strings to Excel cells
+
+## Error Handling
+
+- All file I/O wrapped in try/except with specific exception types — never bare `except:`
+- Log warnings (not exceptions) for expected edge cases: no EP entry found, empty history, tag not found after retry
+- FastAPI endpoint catches all exceptions and returns `{ "success": false, "error": str(e) }`
+
+## Credentials
+
+- Credentials live in Python process memory only — passed in on session start, never written to disk
+- Never log credential values, even at debug level
