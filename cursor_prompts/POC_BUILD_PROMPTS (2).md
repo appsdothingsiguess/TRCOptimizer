@@ -88,7 +88,7 @@ relay/server.js:
 - Serve ../frontend/ as static files at GET /
 - Store session state in a module-level variable: { iiq_ticket, asset_tag, tech_initials }
 - POST /start-intake: validate all three fields present. Store them. If extension WebSocket is connected, send { type: "start_intake", payload: { asset_tag } } to it. Return { status: "started" }. If extension not connected, return { status: "error", error: "Extension not connected" }
-- POST /extension-data: merge received body { csv_data, history_rows } with stored session fields, POST the combined object to http://127.0.0.1:8000/process using Node 18 fetch. Return FastAPI's JSON response directly. On network error return { success: false, error: "Backend unreachable" }
+- POST /extension-data: merge received body { serial, product_name, school_name, history_rows } with stored session fields, POST the combined object to http://127.0.0.1:8000/process using Node 18 fetch. Return FastAPI's JSON response directly. On network error return { success: false, error: "Backend unreachable" }
 - WebSocket /ws: one slot for the Firefox extension. Store reference on connect, clear on close. On message { type: "status" or "error" }: parse and forward to all connected /frontend-ws clients
 - WebSocket /frontend-ws: multiple browser clients. Used only to receive forwarded status messages from the relay
 - On startup: spawn FastAPI with child_process.spawn("python", ["-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"], { cwd: path.join(__dirname, "../backend"), stdio: "inherit" }). On exit, log and restart after 2000ms
@@ -109,38 +109,38 @@ start.bat (project root):
 
 ---
 
-## SESSION 2 — Python Data Models and CSV Parser
+## SESSION 2 — Python Data Models
 
-**Owns:** `backend/requirements.txt`, `backend/models.py`, `backend/csv_parser.py`
+**Owns:** `backend/requirements.txt`, `backend/models.py`
 **Depends on:** Session 1 (file structure established)
+
+> **UPDATED 2026-06-23:** `csv_parser.py` and CSV-based data ingestion are retired. Device data
+> comes directly from the i3 API via the extension. `ProcessRequest` now carries `serial`,
+> `product_name`, and `school_name` directly. `DeviceInfo` and `TagNotFoundError` are removed.
 
 ```
 Read AGENTS.md before writing anything.
 
-Build the data models and CSV parser for the TRC_Opt Python backend.
+Build the data models for the TRC_Opt Python backend.
 
 backend/requirements.txt:
 fastapi
 uvicorn
-pandas
 openpyxl
 pydantic
 
 backend/models.py:
-- ProcessRequest(BaseModel): iiq_ticket: str, asset_tag: str, tech_initials: str, csv_data: str, history_rows: list[dict]
-- DeviceInfo(BaseModel): serial: str, device_type: str, product_name: str, model: str, school_name: str, available_status: str, room_description: str, room_type: str
-- TagNotFoundError(Exception): __init__(self, asset_tag: str), message is f"Asset tag '{asset_tag}' not found in CSV"
-
-backend/csv_parser.py:
-- Function: def parse_csv(csv_text: str, asset_tag: str) -> DeviceInfo
-- Use pd.read_csv(io.StringIO(csv_text))
-- Drop all columns where the column name starts with "Unnamed"
-- Ignore any column named exactly `purchase_order$Storage Capacity` (with backticks)
-- Before matching: strip whitespace from both asset_tag and every value in the Tag column
-- Extract these fields from the matching row: Serial, DeviceType, ProductName, Model, SchoolName, AvailableStatus, RoomDescription, RoomType
-- Return DeviceInfo with those values
-- Raise TagNotFoundError(asset_tag) if no row matches
-- Never delete any file — the CSV arrives as text, not a file path
+- ProcessRequest(BaseModel):
+    iiq_ticket:    str
+    asset_tag:     str
+    tech_initials: str
+    serial:        str
+    product_name:  str
+    school_name:   str
+    history_rows:  list[dict]
+  Each history_rows dict has keys: date (MM-DD-YYYY HH:MM), assigned_to, break_name, site_name, status.
+  break_name is present for schema compatibility but is NOT used for break counting.
+- No other models. No DeviceInfo. No TagNotFoundError. No csv_parser.py.
 ```
 
 ---
@@ -150,6 +150,15 @@ backend/csv_parser.py:
 **Owns:** `backend/break_counter.py`, `backend/excel_writer.py`
 **Depends on:** Session 2 (models.py must exist and be importable)
 
+> **UPDATED 2026-06-23:** Break counting no longer uses `break_name`/`strike` because damage is
+> not consistently logged in i3. A "break" is now defined as a **TRC repair visit**: a history row
+> where `site_name == "Technology Repair Center"` AND `status == "InRepair"`.
+>
+> **Business rule (confirmed):** Breaks are counted per person per device type — John's break count
+> is his TOTAL MacBook repairs across every MacBook he has ever held, not just the current device.
+> The current implementation is a per-device floor count (see "Known gap" below); full
+> per-person-per-type counting is a future enhancement.
+
 ```
 Read AGENTS.md before writing anything.
 
@@ -157,12 +166,24 @@ Build break_counter.py and excel_writer.py for the TRC_Opt Python backend.
 
 backend/break_counter.py:
 - Function: def count_breaks(history_rows: list[dict]) -> int
-- history_rows are newest-first. Each dict has keys: date (string), assigned_to (string), break_name (string)
-- Find the FIRST row where "Staff (EP" is a substring of assigned_to
-- Parse that row's date as the cutoff: datetime.strptime(date_str, "%m-%d-%Y %H:%M")
-- Count all rows where break_name == "Staff - Device - Damaged" AND parsed date >= cutoff_date
+- history_rows are newest-first. Each dict has keys: date (str), assigned_to (str),
+  break_name (str, present but not used), site_name (str), status (str)
+- Helper _norm(s): collapses interior spaces in parentheses using re.sub.
+  "Staff ( EP12345 )" → "Staff (EP12345)" so the EP check works regardless of spacing.
+- Find the FIRST row where "Staff (EP" is a substring of _norm(assigned_to)
+- Parse that row's date as cutoff_date: datetime.strptime(date_str, "%m-%d-%Y %H:%M")
+- Count all rows where:
+    site_name == "Technology Repair Center"
+    AND status == "InRepair"
+    AND datetime.strptime(row["date"], "%m-%d-%Y %H:%M") >= cutoff_date
 - If no EP row found: log a warning with logging.warning() and return 0 — never raise
-- If no damage rows after cutoff: return 0 — this is valid
+- If no qualifying TRC rows after cutoff: return 0 — this is valid
+- Never count rows based on break_name or strike — those fields are unreliable
+
+Known gap: this counts TRC InRepair visits for the current device only since this staff
+member received it. It does not count repairs the same person caused on other devices of
+the same type. Full per-person-per-type counting requires querying all device histories for
+that EP ID — defer to a future session.
 
 backend/excel_writer.py:
 - Function: def write_intake_row(iiq_ticket, asset_tag, serial, school_name, tech_initials, break_count, excel_path) -> None
@@ -188,7 +209,10 @@ backend/excel_writer.py:
 ## SESSION 4 — FastAPI Entry Point
 
 **Owns:** `backend/main.py`
-**Depends on:** Sessions 2 and 3 (all three modules must be importable)
+**Depends on:** Sessions 2 and 3 (all modules must be importable)
+
+> **UPDATED 2026-06-23:** `csv_parser` and `TagNotFoundError` are removed. Device fields arrive
+> directly on the request body from the extension.
 
 ```
 Read AGENTS.md before writing anything.
@@ -197,14 +221,18 @@ Build the FastAPI main.py for the TRC_Opt backend.
 
 backend/main.py:
 - app = FastAPI()
-- Imports: FastAPI; from models import ProcessRequest, TagNotFoundError; from csv_parser import parse_csv; from break_counter import count_breaks; from excel_writer import write_intake_row; from pathlib import Path
+- Imports: FastAPI; from models import ProcessRequest; from break_counter import count_breaks;
+  from excel_writer import write_intake_row; from pathlib import Path
+- Do NOT import csv_parser — it is retired.
 - EXCEL_PATH = Path(__file__).parent.parent / "data" / "macbook_intake.xlsx"
 - Single endpoint: @app.post("/process") async def process_intake(request: ProcessRequest)
 - Call sequence inside try block:
-  1. device = parse_csv(request.csv_data, request.asset_tag)
-  2. break_count = count_breaks(request.history_rows)
-  3. write_intake_row(request.iiq_ticket, request.asset_tag, device.serial, device.school_name, request.tech_initials, break_count, EXCEL_PATH)
-- On success return: { "success": True, "serial": device.serial, "product_name": device.product_name, "school_name": device.school_name, "break_count": break_count }
+  1. break_count = count_breaks(request.history_rows)
+  2. write_intake_row(request.iiq_ticket, request.asset_tag, request.serial,
+                     request.school_name, request.tech_initials, break_count, EXCEL_PATH)
+- On success return: { "success": True, "serial": request.serial,
+  "product_name": request.product_name, "school_name": request.school_name,
+  "break_count": break_count }
 - Except block catches Exception as e: return { "success": False, "error": str(e) }
 - No other endpoints. No CORS. No middleware. No authentication. No startup events.
 ```
@@ -214,83 +242,77 @@ backend/main.py:
 ## SESSION 5 — Firefox Extension
 
 **Owns:** `extension/manifest.json`, `extension/background.js`, `extension/content.js`
-**Depends on:** Session 0 complete (real i3 selectors in `extension/i3-selectors.md`) + Session 1 (WebSocket message contracts confirmed)
+**Depends on:** Session 1 (WebSocket message contracts confirmed)
 
-*background.js and manifest.json can be written before Session 0 is done. content.js must not be written until `extension/i3-selectors.md` exists with real selector data.*
+> **UPDATED 2026-06-23 — COMPLETE.** Session 0 (selector discovery) revealed that i3 is built on
+> Flutter CanvasKit, which renders everything to a `<canvas>` in a shadow DOM. No DOM selectors
+> exist for UI elements. All three extension files have been built and confirmed.
+>
+> **Architecture change from original spec:** No DOM automation. No CSV download. The extension
+> makes a single i3 REST API call (`getTagInformationByTagOrSerialId`) using the JWT from
+> `localStorage`, maps the response to the relay body format, and POSTs to `/extension-data`.
+> See `extension/i3-selectors.md` for full API contracts.
 
-*Can run in parallel with Sessions 2–4 using Cursor Agents Window + git worktree isolation — but content.js is blocked until Session 0 output is pasted in.*
-
-**PREREQUISITE — installation method:** This is an unpacked extension loaded via `about:debugging > This Firefox > Load Temporary Add-on > select extension/manifest.json`. No signing required. It clears on Firefox restart, so the tech loads it once at the start of each shift. The gecko ID in manifest.json is for identification only — it does not need to match any folder name for temporary loading.
+**PREREQUISITE — installation method:** Unpacked extension loaded via
+`about:debugging > This Firefox > Load Temporary Add-on > select extension/manifest.json`.
+No signing required. Clears on Firefox restart — tech loads once per shift.
 
 ```
-Read AGENTS.md before writing anything.
+Read AGENTS.md before writing anything. Read extension/i3-selectors.md for confirmed API contracts.
 
-Build the Firefox MV2 extension for TRC_Opt. This is Firefox-only — never use chrome.* API, always use browser.* throughout.
+The three files below are COMPLETE as of 2026-06-23. Do not rewrite them unless a specific
+bug is being fixed. If building from scratch, use this spec.
 
 extension/manifest.json:
 - manifest_version: 2
-- name: "TRC Opt", version: "1.0.0"
-- permissions: ["tabs", "downloads", "storage", "webNavigation", "http://ims.lisd.net/*", "http://localhost:4321/*"]
+- name: "TRC_Opt i3 Connector", version: "1.0.0"
+- permissions: ["activeTab", "tabs"]
 - background: { "scripts": ["background.js"], "persistent": true }
-  Note: persistent:true is required because the extension holds a long-lived WebSocket connection. Without it the background page would be suspended and the WebSocket dropped.
-- No content_scripts key at manifest level — content.js is injected programmatically at runtime
-- browser_specific_settings: { "gecko": { "id": "trc-opt@lisd.internal", "strict_min_version": "109.0" } }
+  persistent:true is required — background page holds a long-lived WebSocket connection.
+- content_scripts: matches "https://ims.lisd.net/*", js: ["content.js"], run_at: "document_idle"
+- browser_specific_settings: { "gecko": { "id": "trcopt-connector@lisd.net", "strict_min_version": "109.0" } }
 
 extension/background.js:
 - Use browser.* API throughout — never chrome.*
 - On startup: connect WebSocket to ws://localhost:4321/ws
-- Reconnect on close: retry after 3000ms, stop after 10 attempts and log "Extension WebSocket: max retries reached"
-- On message { type: "start_intake", payload: { asset_tag } }:
-  1. Store asset_tag in browser.storage.local (not browser.storage.session — session storage is MV3-only in Firefox; use local for POC)
-  2. Send { type: "status", step: "download", message: "Downloading i3 report..." } to relay via WebSocket
-  3. Find or create a tab at ims.lisd.net: browser.tabs.query({ url: "*://ims.lisd.net/*" }) — if found use tabs[0].id, if not create with browser.tabs.create({ url: "http://ims.lisd.net" })
-  4. Inject content.js: browser.tabs.executeScript(tabId, { file: "content.js" })
-  5. IMPORTANT — injection race fix: after executeScript resolves (it returns a Promise), wait 500ms then send the command message. The content script needs time to register its onMessage listener after injection. Use: executeScript(...).then(() => setTimeout(() => browser.tabs.sendMessage(tabId, { action: "run_sequence1" }), 500))
-  6. Store tabId in a module-level variable for later use
-
-- On browser.runtime.onMessage from content.js { type: "sequence1_complete" }:
-  1. Send { type: "status", step: "download", message: "Report downloaded, reading file..." } to relay via WebSocket
-  2. Search downloads: browser.downloads.search({ orderBy: ["-startTime"], limit: 10 })
-  3. Filter results: item.filename must match /report.*\.csv$/i AND item.state === "complete"
-  4. Take the first match (most recent). If none found after 3 retries (500ms apart), send error to relay.
-  5. Read file: fetch(item.url).then(r => r.text())
-  6. Send { type: "csv_ready", csv_text: text } to relay via WebSocket
-
-- On WebSocket message { type: "serial_ready", serial }:
-  1. Send { action: "run_sequence2", serial } to the stored ims.lisd.net tabId via browser.tabs.sendMessage
-  2. If tab no longer exists, send error to relay
-
-- All unknown message types from relay or content: log with console.warn and ignore — never throw
+- Reconnect on close: retry after 3000ms, stop after 10 attempts, log "Extension WebSocket: max retries reached"
+- On WebSocket message { type: "start_intake", payload: { asset_tag } }:
+  1. Store asset_tag in a module-level variable
+  2. Send { type: "status", step: "lookup", message: "Looking up device in i3..." } via WebSocket
+  3. Find or create a tab at ims.lisd.net: browser.tabs.query({ url: "*://ims.lisd.net/*" })
+     — if found use tabs[0].id, if not create with browser.tabs.create({ url: "https://ims.lisd.net" })
+  4. After tab is ready, send { action: "run_intake", asset_tag } via browser.tabs.sendMessage
+- On browser.runtime.onMessage from content.js:
+  - { type: "intake_complete", serial, product_name, school_name, history_rows }:
+    POST to http://localhost:4321/extension-data with that body.
+    On HTTP error, send { type: "error", step: "relay_post", message: ... } via WebSocket.
+  - { type: "error", step, message }: forward as { type: "error", message } via WebSocket
+  - { type: "status", message }: forward as { type: "status", message } via WebSocket
+- All unknown message types: log with console.warn and ignore — never throw
 
 extension/content.js:
-- On injection: immediately call browser.runtime.sendMessage({ type: "content_ready" }) so background.js knows the script is live (this is the correct pattern to avoid the race — but since we also use the 500ms delay as belt-and-suspenders, the ready message is for logging only)
-- Listen for messages via browser.runtime.onMessage — return true from the listener to keep the message channel open for async responses
-- waitForElement(selector, timeoutMs = 10000): MutationObserver on document.body with { childList: true, subtree: true }. On timeout: throw new Error("Timeout waiting for: " + selector). Always disconnect observer on both success and timeout.
-- Never use setTimeout for sequencing steps — only for timeout countdown
-- Every DOM selector must have a comment: // [description of element] — STABLE (data attr / id) or FRAGILE (class/position) — [reason]
-- Selectors will be filled in from extension/i3-selectors.md after Session 0 — use placeholder comments like // TODO: replace with selector from i3-selectors.md
+- No DOM automation. No MutationObservers. No UI clicking.
+- i3 is Flutter CanvasKit — the UI is drawn on a <canvas>. All data comes from the REST API.
+- getToken(): parse JSON.parse(localStorage["flutter.loginToken"]) → return the token string
+- isAuthenticated(): check localStorage["flutter.isAuthenticated"] === "true"
+- i3Fetch(path): fetch("https://ims.lisd.net" + path, { headers: { Authorization: "Bearer " + getToken() } })
+- convertDate(apiDate): convert "YYYY-MM-DD HH:mm:ss.SSS" → "MM-DD-YYYY HH:MM"
+- lookupDevice(asset_tag):
+  1. Call GET /inventory/transfer/getTagInformationByTagOrSerialId/{asset_tag}/0
+  2. Parse response: serial = data.serialNo, product_name = data.productName, school_name = data.siteName
+  3. Map data.listOfResponses → history_rows array, newest first:
+     Each row: { date: convertDate(row.date), assigned_to: row.inPlaceType || "",
+                 break_name: row.strike || "", site_name: row.siteName || "", status: row.status || "" }
+  4. Return { serial, product_name, school_name, history_rows }
+- On browser.runtime.onMessage { action: "run_intake", asset_tag }:
+  1. If !isAuthenticated(): send error "Not logged in to i3" and return
+  2. Call lookupDevice(asset_tag)
+  3. On success: send { type: "intake_complete", serial, product_name, school_name, history_rows }
+  4. On error: send { type: "error", step: "lookup", message: e.message }
+- Return true from the onMessage listener to keep channel open for async responses
 
-Sequence 1 (triggered by { action: "run_sequence1" }):
-1. Navigate: window.location.href = "http://ims.lisd.net/#/inventory/settings/reports"
-2. waitForElement([sitename filter selector from i3-selectors.md]), click it to open dropdown
-3. waitForElement([TRC checkbox selector]), click it to select
-4. waitForElement([Done button selector]), click it
-5. waitForElement([Search button selector]), click it
-6. waitForElement([Download as Report button selector]), click it
-7. browser.runtime.sendMessage({ type: "sequence1_complete" })
-- Each numbered step in its own try/catch: on error, browser.runtime.sendMessage({ type: "error", step: "seq1_step" + N, message: e.message }) and return
-
-Sequence 2 (triggered by { action: "run_sequence2", serial }):
-1. Navigate to device search page
-2. waitForElement([search mode dropdown]), click it, select "Tag/Serial" option
-3. waitForElement([search input field]), clear it, type serial character by character using input events to trigger SPA reactivity: field.value = serial; field.dispatchEvent(new Event("input", { bubbles: true }))
-4. waitForElement([result row]), click it
-5. waitForElement([History Details tab]), click it
-6. waitForElement([history table]), scrape all rows into: [{ date: cells[dateCol].textContent.trim(), assigned_to: cells[assignedCol].textContent.trim(), break_name: cells[breakCol].textContent.trim() }]
-7. fetch("http://localhost:4321/extension-data", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ history_rows: rows }) })
-- Each numbered step in its own try/catch: on error, browser.runtime.sendMessage({ type: "error", step: "seq2_step" + N, message: e.message }) and return
-
-Note on SPA input: i3 is almost certainly a JavaScript SPA (Angular or React based on LISD's typical vendor stack). Setting .value alone on an input field will not trigger the framework's change detection. Always dispatch an "input" event with bubbles:true after setting a value. If results still don't appear, also dispatch "change".
+Note: TRC site ID is 145 (confirmed from i3 login localStorage). The relay URL is
+http://localhost:4321 (not https) — extension connects to local relay only.
 ```
 
 ---
@@ -350,21 +372,36 @@ frontend/main.ts (compiles to ES2020, no framework imports):
 ```
 Read AGENTS.md before doing anything.
 
-Do not write any new code. Review the complete project for wiring correctness and report PASS, FAIL, or NEEDS REVIEW on each item with one sentence of justification.
+Do not write any new code. Review the complete project for wiring correctness and report
+PASS, FAIL, or NEEDS REVIEW on each item with one sentence of justification.
 
-1. relay/server.js POST /extension-data: does it merge the received body with the stored session fields before sending to FastAPI? Does the merged object contain all five fields that ProcessRequest expects: iiq_ticket, asset_tag, tech_initials, csv_data, history_rows?
+1. relay/server.js POST /extension-data: does it accept { serial, product_name, school_name,
+   history_rows } in the request body? Does the merged payload to FastAPI contain all seven
+   fields ProcessRequest expects: iiq_ticket, asset_tag, tech_initials, serial, product_name,
+   school_name, history_rows?
 
-2. backend/main.py: are parse_csv, count_breaks, and write_intake_row called in that order in the try block? Does the except block catch TagNotFoundError (which extends Exception)?
+2. backend/main.py: is csv_parser NOT imported? Are count_breaks and write_intake_row called in
+   that order in the try block? Does write_intake_row receive request.serial and request.school_name
+   directly (not from a DeviceInfo object)?
 
-3. backend/excel_writer.py: does the row search begin at row 4? Is row 3 never the target? Confirm column assignments: B=2, C=3, D=skipped, E=5, F=6, G=7, H=8, I=9. Confirm columns 1 and 10–21 are never written.
+3. backend/break_counter.py: does count_breaks count rows where site_name ==
+   "Technology Repair Center" AND status == "InRepair" (NOT break_name == "Staff - Device - Damaged")?
+   Does _norm() collapse interior spaces in parentheses?
 
-4. extension/background.js: does WebSocket reconnect fire on the close event? Does the download reader use browser.downloads.search and then fetch the result URL?
+4. backend/excel_writer.py: does the row search begin at row 4? Is row 3 never the target?
+   Confirm column assignments: B=2, C=3, D=skipped, E=5, F=6, G=7, H=8, I=9.
+   Confirm columns 1 and 10–21 are never written.
 
-5. extension/content.js: does waitForElement use MutationObserver (not setTimeout)? Is every selector commented with a stability rating?
+5. extension/background.js: does WebSocket reconnect fire on the close event? Does it POST to
+   http://localhost:4321/extension-data on receiving { type: "intake_complete" } from content.js?
 
-6. frontend/main.ts: does WebSocket connect to /frontend-ws (not /ws)? Does resetForm() set button.disabled = true?
+6. extension/content.js: does it use the i3 REST API (no DOM automation, no MutationObservers)?
+   Does it send history rows with site_name and status fields populated?
 
-7. restart.bat: does it kill both node.exe and python.exe before restarting?
+7. frontend/main.ts: does WebSocket connect to /frontend-ws (not /ws)? Does resetForm() set
+   button.disabled = true?
+
+8. restart.bat: does it kill both node.exe and python.exe before restarting?
 
 If any item FAILs, fix only the specific issue in the specific file — do not refactor surrounding code.
 ```

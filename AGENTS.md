@@ -38,10 +38,10 @@ TRC_Opt/
 │   └── package.json
 ├── backend/
 │   ├── main.py                   ← FastAPI app, single /process endpoint
-│   ├── models.py                 ← Pydantic models and custom exceptions
-│   ├── csv_parser.py             ← CSV text → DeviceInfo
-│   ├── break_counter.py          ← history rows → int
+│   ├── models.py                 ← Pydantic models
+│   ├── break_counter.py          ← history rows → int (counts TRC repair visits)
 │   ├── excel_writer.py           ← writes one row to macbook_intake.xlsx
+│   ├── csv_parser.py             ← RETIRED: no longer imported or called
 │   └── requirements.txt
 ├── frontend/
 │   ├── index.html
@@ -50,8 +50,9 @@ TRC_Opt/
 │   └── assets/                  ← logo files go here when supplied
 ├── extension/
 │   ├── manifest.json             ← Firefox MV2
-│   ├── background.js             ← WebSocket client, tab management, download watcher
-│   └── content.js                ← DOM automation on ims.lisd.net
+│   ├── background.js             ← WebSocket client, tab management, HTTP relay to /extension-data
+│   ├── content.js                ← i3 API calls on ims.lisd.net (no DOM automation)
+│   └── i3-selectors.md           ← confirmed API contracts and field reference
 ├── data/
 │   └── macbook_intake.xlsx       ← never recreate, only write values to existing rows
 ├── start.bat                     ← double-click to start everything from cold (Node + browser)
@@ -68,7 +69,7 @@ TRC_Opt/
 |--------|------|------|---------|
 | GET | / | — | serves index.html |
 | POST | /start-intake | `{ iiq_ticket, asset_tag, tech_initials }` | `{ status: "started" }` or `{ status: "error", error: "..." }` |
-| POST | /extension-data | `{ csv_data, history_rows }` | FastAPI /process response verbatim |
+| POST | /extension-data | `{ serial, product_name, school_name, history_rows }` | FastAPI /process response verbatim |
 | WS | /ws | — | extension connection |
 | WS | /frontend-ws | — | browser connection |
 
@@ -78,8 +79,8 @@ TRC_Opt/
 ```json
 { "type": "status", "step": "string", "message": "string" }
 { "type": "error", "step": "string", "message": "string" }
-{ "type": "csv_ready", "csv_text": "raw CSV string" }
 ```
+Device data is sent via `POST /extension-data` (HTTP), not via WebSocket.
 
 **Relay → Frontend (`/frontend-ws`):**
 ```json
@@ -91,7 +92,6 @@ TRC_Opt/
 **Relay → Extension (`/ws`):**
 ```json
 { "type": "start_intake", "payload": { "asset_tag": "string" } }
-{ "type": "serial_ready", "serial": "string" }
 ```
 
 ### FastAPI /process
@@ -99,13 +99,24 @@ TRC_Opt/
 **Request** (matches `ProcessRequest` in models.py):
 ```json
 {
-  "iiq_ticket": "string",
-  "asset_tag": "string",
+  "iiq_ticket":    "string",
+  "asset_tag":     "string",
   "tech_initials": "string",
-  "csv_data": "raw CSV text as string",
-  "history_rows": [{ "date": "MM-DD-YYYY HH:MM", "assigned_to": "string", "break_name": "string" }]
+  "serial":        "string",
+  "product_name":  "string",
+  "school_name":   "string",
+  "history_rows": [
+    {
+      "date":        "MM-DD-YYYY HH:MM",
+      "assigned_to": "string",
+      "break_name":  "string",
+      "site_name":   "string",
+      "status":      "string"
+    }
+  ]
 }
 ```
+All device fields come directly from the i3 `getTagInformationByTagOrSerialId` API response. `csv_data` has been removed — `csv_parser.py` is retired.
 
 **Success response:**
 ```json
@@ -146,26 +157,46 @@ TRC_Opt/
 
 ## Business logic — exact
 
-### CSV parsing (csv_parser.py)
-- Input: raw CSV text string, asset_tag string
-- Use `pd.read_csv(io.StringIO(csv_text))`
-- Drop columns where header starts with `"Unnamed"`
-- Ignore column named `` `purchase_order$Storage Capacity` `` entirely
-- Match: `str(row["Tag"]).strip() == asset_tag.strip()` — case-sensitive, whitespace-stripped
-- Extract: `Serial, DeviceType, ProductName, Model, SchoolName, AvailableStatus, RoomDescription, RoomType`
-- Raise `TagNotFoundError(asset_tag)` if no match
+### Device lookup (content.js → i3 API)
+- i3 API: `GET https://ims.lisd.net/inventory/transfer/getTagInformationByTagOrSerialId/{assetTag}/0`
+- Auth headers (exact format confirmed from DevTools 2026-06-23):
+  - `Authorization: {bare JWT}` — **no "Bearer " prefix**, raw token only
+  - `Accept: application/json`
+  - `Content-type: application/json; charset=utf-8`
+  - `credentials: "include"` — required for `JSESSIONID` session cookie (auto-sent by browser)
+- Token: `JSON.parse(localStorage["flutter.loginToken"])` — stored with outer quotes, must parse
+- Token lifetime: ~10 hours. Decode `exp` from JWT payload to check expiry before calling.
+- No refresh endpoint exists — expired token requires tech to log back in to i3 manually.
+- Response fields used: `serialNo`, `productName`, `siteName`, `listOfResponses`
+- `listOfResponses` contains the full device history, newest first
+- History row mapping (API → history_rows dict):
+
+| history_rows field | i3 API field | Example value |
+|--------------------|-------------|---------------|
+| `date`        | `listOfResponses[i].date` converted | `"09-12-2025 21:26"` (MM-DD-YYYY HH:MM) |
+| `assigned_to` | `listOfResponses[i].inPlaceType` | `"Staff ( EP12345 )"`, `"Room ( 48551 )"`, `"Student ( 123 )"` |
+| `break_name`  | `listOfResponses[i].strike` | `""` or `"1st iPad Damaged"` — unreliable, not used for counting |
+| `site_name`   | `listOfResponses[i].siteName` | `"Technology Repair Center"` or school name |
+| `status`      | `listOfResponses[i].status` | `"InRepair"`, `"Available"`, `"Disposed"`, `"In_use"`, `"Submitted"` |
+
+- Date conversion: API sends `"YYYY-MM-DD HH:mm:ss.SSS"` → split on space and `-`, reconstruct as `"MM-DD-YYYY HH:MM"`
+- No DOM automation. No UI interaction. No MutationObservers.
 
 ### Break counting (break_counter.py)
-- Input: list of `{ date, assigned_to, break_name }` dicts, newest row first
-- Find first row where `"Staff (EP"` is a substring of `assigned_to`
-- Record that row's date as `cutoff_date`, parse with `datetime.strptime(date_str, "%m-%d-%Y %H:%M")`
-- Count rows where `break_name == "Staff - Device - Damaged"` AND parsed date >= cutoff_date
-- No EP row found → return 0, log warning — never raise
+**What a "break" means (confirmed 2026-06-23):**
+- A break is counted when a device arrives at Technology Repair Center for repair.
+- Damage logging in i3 is **not consistent** — `break_name`/`strike` fields are unreliable and must NOT be used for counting.
+- Breaks are tied to the **person per device type** (e.g., John's total MacBook repairs), not per individual device instance.
 
-### DOM automation rules (content.js)
-- All waits use MutationObserver — never `setTimeout` for sequencing
-- Every step has a 10-second timeout that sends `{ type: "error", step: "...", message: "Timeout waiting for: [selector]" }` to background.js
-- Prefer `data-*` attributes and stable IDs; every selector must be commented with a stability assessment
+**Current implementation (POC — per-device floor count):**
+- Input: list of history row dicts, newest first, each with `date`, `assigned_to`, `site_name`, `status`
+- Find the FIRST row where `"Staff (EP"` is a substring of `_norm(assigned_to)`
+  - `_norm()` collapses interior spaces: `"Staff ( EP12345 )"` → `"Staff (EP12345)"`
+- Record that row's `date` as `cutoff_date` — parse with `strptime(date_str, "%m-%d-%Y %H:%M")`
+- Count rows where `site_name == "Technology Repair Center"` AND `status == "InRepair"` AND `parsed_date >= cutoff_date`
+- No EP row found → log warning and return 0 — never raise
+
+**Known gap:** This counts TRC repair visits for the current device only, since the current staff member received it. It does NOT count repairs the same person caused on other devices of the same type. Full per-person-per-type counting requires querying all device histories for that EP ID — a future enhancement.
 
 ---
 

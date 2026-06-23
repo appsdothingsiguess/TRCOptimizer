@@ -1,0 +1,853 @@
+=== i3 SELECTOR TEST REPORT ===
+Timestamp: 2026-06-23T18:01:00.163Z
+URL: https://ims.lisd.net/#/inventory/settings/reports
+Page scope: reports
+Hash: #/inventory/settings/reports
+Summary: pass=0 fail=6 warn=0
+
+
+========== FRAMEWORK ==========
+{
+  "renderer": "canvaskit (auto-selected)",
+  "buildMode": "release",
+  "embedding": "full-page",
+  "hasFlutterView": true,
+  "semanticsHostPresent": true,
+  "semanticsHostChildCount": 0,
+  "semanticsHostInnerHTMLLength": 0,
+  "documentTitle": "Swensa I3",
+  "hashRoute": "#/inventory/settings/reports",
+  "viewport": {
+    "width": 2144,
+    "height": 893
+  },
+  "semanticsReady": false,
+  "semanticsWaitedMs": 20028
+}
+
+
+========== HINTS ==========
+{
+  "ifAllFailed": "Semantics tree never populated — accessibility may be off. Only canvas + hidden flt-text-editing inputs exist.",
+  "reportsPage": "Navigate to #/inventory/settings/reports and open Sitename filter before testing element 2.",
+  "searchPage": "Navigate to inventory search; type 3+ chars before testing element 8.",
+  "historyPage": "Open a device detail modal and click History Details before testing 9–12."
+}
+
+
+========== LIVE ELEMENT COUNTS ==========
+{
+  "semanticsNodes": 0,
+  "buttons": 0,
+  "checkboxes": 0,
+  "tabs": 0,
+  "textFields": 0,
+  "links": 0,
+  "textEditingInputs": 4,
+  "scrollContainers": 0,
+  "canvases": 0
+}
+
+
+========== TARGET SELECTOR TESTS ==========
+[
+  {
+    "id": 0,
+    "name": "Flutter semantics ready",
+    "selector": "flt-semantics-host must have child nodes",
+    "found": false,
+    "count": 0,
+    "stability": "FRAGILE",
+    "notes": "Semantics tree empty after 20s. Flutter may have accessibility disabled, or page still loading. Proxy inputs found: 4. Canvas count: 0.",
+    "warn": false,
+    "liveMatches": []
+  },
+  {
+    "id": 1,
+    "name": "Site/Location filter dropdown opener",
+    "selector": "flt-semantics[aria-label=\"Select Sitename\"] (+ variants)",
+    "found": false,
+    "count": 0,
+    "stability": "FRAGILE",
+    "notes": "Not found. Open Sitename filter dropdown first. All labels on page: ",
+    "warn": false,
+    "liveMatches": []
+  },
+  {
+    "id": 2,
+    "name": "Technology Repair Center checkbox",
+    "selector": "flt-semantics[role=\"checkbox\"][aria-label*=\"Technology Repair\"]",
+    "found": false,
+    "count": 0,
+    "stability": "FRAGILE",
+    "notes": "Not found. All checkboxes: (none)",
+    "warn": false,
+    "liveMatches": []
+  },
+  {
+    "id": 3,
+    "name": "Done / Apply button",
+    "selector": "flt-semantics[aria-label=\"Done\"][role=\"button\"]",
+    "found": false,
+    "count": 0,
+    "stability": "FRAGILE",
+    "notes": "Not found",
+    "warn": false,
+    "liveMatches": []
+  },
+  {
+    "id": 4,
+    "name": "Search button",
+    "selector": "flt-semantics[aria-label=\"Search\"][role=\"button\"]",
+    "found": false,
+    "count": 0,
+    "stability": "FRAGILE",
+    "notes": "Not found",
+    "warn": false,
+    "liveMatches": []
+  },
+  {
+    "id": 5,
+    "name": "Download / Export button",
+    "selector": "flt-semantics[aria-label=\"Download Report\"][role=\"button\"] (+ fallbacks)",
+    "found": false,
+    "count": 0,
+    "stability": "FRAGILE",
+    "notes": "Not found. Button labels on page: ",
+    "warn": false,
+    "liveMatches": []
+  }
+]
+
+
+========== ALL UNIQUE ARIA-LABELS (0) ==========
+
+
+
+========== ALL UNIQUE ROLES ==========
+
+
+
+========== ALL BUTTONS (0) ==========
+[]
+
+
+========== ALL CHECKBOXES (0) ==========
+[]
+
+
+========== ALL TABS (0) ==========
+[]
+
+
+========== ALL TEXT FIELDS (semantics) (0) ==========
+[]
+
+
+========== ALL LINKS (semantics) (0) ==========
+[]
+
+
+========== TEXT EDITING PROXY INPUTS (4) ==========
+[
+  {
+    "index": 0,
+    "treePath": "flt-text-editing-host/input[0]",
+    "depth": 2,
+    "tag": "input",
+    "id": null,
+    "classes": "flt-text-editing",
+    "attributes": {
+      "autocomplete": "on",
+      "autocorrect": "on",
+      "class": "flt-text-editing",
+      "style": "forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px \"PlusJakartaSans\", Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 370.12, 189.8);"
+    },
+    "ariaLabel": null,
+    "role": null,
+    "ariaChecked": null,
+    "ariaSelected": null,
+    "ariaExpanded": null,
+    "tabIndex": null,
+    "value": "tech",
+    "readonly": false,
+    "textContent": "",
+    "innerText": "",
+    "visible": false,
+    "onScreen": false,
+    "rect": {
+      "top": -9809,
+      "left": -9629,
+      "width": 0,
+      "height": 0,
+      "bottom": -9809,
+      "right": -9629
+    },
+    "selectorHints": [
+      "input.flt-text-editing"
+    ]
+  },
+  {
+    "index": 1,
+    "treePath": "flt-text-editing-host/input[1]",
+    "depth": 2,
+    "tag": "input",
+    "id": null,
+    "classes": "flt-text-editing",
+    "attributes": {
+      "autocomplete": "on",
+      "autocorrect": "on",
+      "class": "flt-text-editing",
+      "style": "forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px \"PlusJakartaSans\", Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 370.12, 175.027);"
+    },
+    "ariaLabel": null,
+    "role": null,
+    "ariaChecked": null,
+    "ariaSelected": null,
+    "ariaExpanded": null,
+    "tabIndex": null,
+    "value": "",
+    "readonly": false,
+    "textContent": "",
+    "innerText": "",
+    "visible": false,
+    "onScreen": false,
+    "rect": {
+      "top": -9824,
+      "left": -9629,
+      "width": 0,
+      "height": 0,
+      "bottom": -9824,
+      "right": -9629
+    },
+    "selectorHints": [
+      "input.flt-text-editing"
+    ]
+  },
+  {
+    "index": 2,
+    "treePath": "flt-text-editing-host/input[2]",
+    "depth": 2,
+    "tag": "input",
+    "id": null,
+    "classes": "flt-text-editing",
+    "attributes": {
+      "readonly": "readonly",
+      "autocomplete": "on",
+      "autocorrect": "on",
+      "class": "flt-text-editing",
+      "style": "forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px \"PlusJakartaSans\", Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 362.12, 121.8);"
+    },
+    "ariaLabel": null,
+    "role": null,
+    "ariaChecked": null,
+    "ariaSelected": null,
+    "ariaExpanded": null,
+    "tabIndex": null,
+    "value": "",
+    "readonly": true,
+    "textContent": "",
+    "innerText": "",
+    "visible": false,
+    "onScreen": false,
+    "rect": {
+      "top": -9877,
+      "left": -9637,
+      "width": 0,
+      "height": 0,
+      "bottom": -9877,
+      "right": -9637
+    },
+    "selectorHints": [
+      "input.flt-text-editing"
+    ]
+  },
+  {
+    "index": 3,
+    "treePath": "flt-text-editing-host/input[3]",
+    "depth": 2,
+    "tag": "input",
+    "id": null,
+    "classes": "flt-text-editing",
+    "attributes": {
+      "autocomplete": "on",
+      "autocorrect": "on",
+      "class": "flt-text-editing",
+      "style": "forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: 0px; left: 0px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px \"PlusJakartaSans\", Arial, sans-serif; width: 281.6px; height: 19px; transform: matrix(1, 0, 0, 1, 370.12, 189.8);"
+    },
+    "ariaLabel": null,
+    "role": null,
+    "ariaChecked": null,
+    "ariaSelected": null,
+    "ariaExpanded": null,
+    "tabIndex": null,
+    "value": "",
+    "readonly": false,
+    "textContent": "",
+    "innerText": "",
+    "visible": true,
+    "onScreen": true,
+    "rect": {
+      "top": 190,
+      "left": 370,
+      "width": 282,
+      "height": 19,
+      "bottom": 209,
+      "right": 652
+    },
+    "selectorHints": [
+      "input.flt-text-editing"
+    ]
+  }
+]
+
+
+========== SCROLL CONTAINERS (0) ==========
+[]
+
+
+========== CANVASES (0) ==========
+[]
+
+
+========== FLUTTER SHELL ELEMENTS ==========
+[
+  {
+    "index": 0,
+    "treePath": "flutter-view[0]",
+    "depth": 0,
+    "tag": "flutter-view",
+    "id": null,
+    "classes": null,
+    "attributes": {
+      "style": "position: absolute; inset: 0px; cursor: default;"
+    },
+    "ariaLabel": null,
+    "role": null,
+    "ariaChecked": null,
+    "ariaSelected": null,
+    "ariaExpanded": null,
+    "tabIndex": null,
+    "value": null,
+    "readonly": false,
+    "textContent": "Campus",
+    "innerText": "Campus",
+    "visible": true,
+    "onScreen": true,
+    "rect": {
+      "top": 0,
+      "left": 0,
+      "width": 2144,
+      "height": 893,
+      "bottom": 893,
+      "right": 2144
+    },
+    "selectorHints": []
+  },
+  {
+    "index": 1,
+    "treePath": "flt-glass-pane[1]",
+    "depth": 0,
+    "tag": "flt-glass-pane",
+    "id": null,
+    "classes": null,
+    "attributes": {},
+    "ariaLabel": null,
+    "role": null,
+    "ariaChecked": null,
+    "ariaSelected": null,
+    "ariaExpanded": null,
+    "tabIndex": null,
+    "value": null,
+    "readonly": false,
+    "textContent": "Campus",
+    "innerText": "Campus",
+    "visible": false,
+    "onScreen": false,
+    "rect": {
+      "top": 0,
+      "left": 0,
+      "width": 0,
+      "height": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    "selectorHints": []
+  },
+  {
+    "index": 2,
+    "treePath": "flt-text-editing-host[2]",
+    "depth": 0,
+    "tag": "flt-text-editing-host",
+    "id": null,
+    "classes": null,
+    "attributes": {},
+    "ariaLabel": null,
+    "role": null,
+    "ariaChecked": null,
+    "ariaSelected": null,
+    "ariaExpanded": null,
+    "tabIndex": null,
+    "value": null,
+    "readonly": false,
+    "textContent": "",
+    "innerText": "",
+    "visible": false,
+    "onScreen": false,
+    "rect": {
+      "top": 0,
+      "left": 0,
+      "width": 0,
+      "height": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    "selectorHints": []
+  },
+  {
+    "index": 3,
+    "treePath": "flt-semantics-host[3]",
+    "depth": 0,
+    "tag": "flt-semantics-host",
+    "id": null,
+    "classes": null,
+    "attributes": {
+      "style": "position: absolute; transform-origin: 0px 0px 0px; transform: scale(1.11667);"
+    },
+    "ariaLabel": null,
+    "role": null,
+    "ariaChecked": null,
+    "ariaSelected": null,
+    "ariaExpanded": null,
+    "tabIndex": null,
+    "value": null,
+    "readonly": false,
+    "textContent": "",
+    "innerText": "",
+    "visible": false,
+    "onScreen": false,
+    "rect": {
+      "top": 0,
+      "left": 0,
+      "width": 0,
+      "height": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    "selectorHints": []
+  }
+]
+
+
+========== FULL SEMANTICS TREE (0 nodes) ==========
+[]
+
+
+========== LABEL INDEX (aria-label -> locations) ==========
+{}
+
+
+========== FULL REPORT JSON ==========
+{
+  "timestamp": "2026-06-23T18:01:00.163Z",
+  "url": "https://ims.lisd.net/#/inventory/settings/reports",
+  "pageScope": "reports",
+  "framework": {
+    "renderer": "canvaskit (auto-selected)",
+    "buildMode": "release",
+    "embedding": "full-page",
+    "hasFlutterView": true,
+    "semanticsHostPresent": true,
+    "semanticsHostChildCount": 0,
+    "semanticsHostInnerHTMLLength": 0,
+    "documentTitle": "Swensa I3",
+    "hashRoute": "#/inventory/settings/reports",
+    "viewport": {
+      "width": 2144,
+      "height": 893
+    },
+    "semanticsReady": false,
+    "semanticsWaitedMs": 20028
+  },
+  "summary": {
+    "pass": 0,
+    "fail": 6,
+    "warn": 0,
+    "total": 6
+  },
+  "tests": [
+    {
+      "id": 0,
+      "name": "Flutter semantics ready",
+      "selector": "flt-semantics-host must have child nodes",
+      "found": false,
+      "count": 0,
+      "stability": "FRAGILE",
+      "notes": "Semantics tree empty after 20s. Flutter may have accessibility disabled, or page still loading. Proxy inputs found: 4. Canvas count: 0.",
+      "warn": false,
+      "liveMatches": []
+    },
+    {
+      "id": 1,
+      "name": "Site/Location filter dropdown opener",
+      "selector": "flt-semantics[aria-label=\"Select Sitename\"] (+ variants)",
+      "found": false,
+      "count": 0,
+      "stability": "FRAGILE",
+      "notes": "Not found. Open Sitename filter dropdown first. All labels on page: ",
+      "warn": false,
+      "liveMatches": []
+    },
+    {
+      "id": 2,
+      "name": "Technology Repair Center checkbox",
+      "selector": "flt-semantics[role=\"checkbox\"][aria-label*=\"Technology Repair\"]",
+      "found": false,
+      "count": 0,
+      "stability": "FRAGILE",
+      "notes": "Not found. All checkboxes: (none)",
+      "warn": false,
+      "liveMatches": []
+    },
+    {
+      "id": 3,
+      "name": "Done / Apply button",
+      "selector": "flt-semantics[aria-label=\"Done\"][role=\"button\"]",
+      "found": false,
+      "count": 0,
+      "stability": "FRAGILE",
+      "notes": "Not found",
+      "warn": false,
+      "liveMatches": []
+    },
+    {
+      "id": 4,
+      "name": "Search button",
+      "selector": "flt-semantics[aria-label=\"Search\"][role=\"button\"]",
+      "found": false,
+      "count": 0,
+      "stability": "FRAGILE",
+      "notes": "Not found",
+      "warn": false,
+      "liveMatches": []
+    },
+    {
+      "id": 5,
+      "name": "Download / Export button",
+      "selector": "flt-semantics[aria-label=\"Download Report\"][role=\"button\"] (+ fallbacks)",
+      "found": false,
+      "count": 0,
+      "stability": "FRAGILE",
+      "notes": "Not found. Button labels on page: ",
+      "warn": false,
+      "liveMatches": []
+    }
+  ],
+  "liveElements": {
+    "counts": {
+      "semanticsNodes": 0,
+      "buttons": 0,
+      "checkboxes": 0,
+      "tabs": 0,
+      "textFields": 0,
+      "links": 0,
+      "textEditingInputs": 4,
+      "scrollContainers": 0,
+      "canvases": 0
+    },
+    "semanticsTree": [],
+    "buttons": [],
+    "checkboxes": [],
+    "tabs": [],
+    "textFields": [],
+    "links": [],
+    "textEditingInputs": [
+      {
+        "index": 0,
+        "treePath": "flt-text-editing-host/input[0]",
+        "depth": 2,
+        "tag": "input",
+        "id": null,
+        "classes": "flt-text-editing",
+        "attributes": {
+          "autocomplete": "on",
+          "autocorrect": "on",
+          "class": "flt-text-editing",
+          "style": "forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px \"PlusJakartaSans\", Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 370.12, 189.8);"
+        },
+        "ariaLabel": null,
+        "role": null,
+        "ariaChecked": null,
+        "ariaSelected": null,
+        "ariaExpanded": null,
+        "tabIndex": null,
+        "value": "tech",
+        "readonly": false,
+        "textContent": "",
+        "innerText": "",
+        "visible": false,
+        "onScreen": false,
+        "rect": {
+          "top": -9809,
+          "left": -9629,
+          "width": 0,
+          "height": 0,
+          "bottom": -9809,
+          "right": -9629
+        },
+        "selectorHints": [
+          "input.flt-text-editing"
+        ]
+      },
+      {
+        "index": 1,
+        "treePath": "flt-text-editing-host/input[1]",
+        "depth": 2,
+        "tag": "input",
+        "id": null,
+        "classes": "flt-text-editing",
+        "attributes": {
+          "autocomplete": "on",
+          "autocorrect": "on",
+          "class": "flt-text-editing",
+          "style": "forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px \"PlusJakartaSans\", Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 370.12, 175.027);"
+        },
+        "ariaLabel": null,
+        "role": null,
+        "ariaChecked": null,
+        "ariaSelected": null,
+        "ariaExpanded": null,
+        "tabIndex": null,
+        "value": "",
+        "readonly": false,
+        "textContent": "",
+        "innerText": "",
+        "visible": false,
+        "onScreen": false,
+        "rect": {
+          "top": -9824,
+          "left": -9629,
+          "width": 0,
+          "height": 0,
+          "bottom": -9824,
+          "right": -9629
+        },
+        "selectorHints": [
+          "input.flt-text-editing"
+        ]
+      },
+      {
+        "index": 2,
+        "treePath": "flt-text-editing-host/input[2]",
+        "depth": 2,
+        "tag": "input",
+        "id": null,
+        "classes": "flt-text-editing",
+        "attributes": {
+          "readonly": "readonly",
+          "autocomplete": "on",
+          "autocorrect": "on",
+          "class": "flt-text-editing",
+          "style": "forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px \"PlusJakartaSans\", Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 362.12, 121.8);"
+        },
+        "ariaLabel": null,
+        "role": null,
+        "ariaChecked": null,
+        "ariaSelected": null,
+        "ariaExpanded": null,
+        "tabIndex": null,
+        "value": "",
+        "readonly": true,
+        "textContent": "",
+        "innerText": "",
+        "visible": false,
+        "onScreen": false,
+        "rect": {
+          "top": -9877,
+          "left": -9637,
+          "width": 0,
+          "height": 0,
+          "bottom": -9877,
+          "right": -9637
+        },
+        "selectorHints": [
+          "input.flt-text-editing"
+        ]
+      },
+      {
+        "index": 3,
+        "treePath": "flt-text-editing-host/input[3]",
+        "depth": 2,
+        "tag": "input",
+        "id": null,
+        "classes": "flt-text-editing",
+        "attributes": {
+          "autocomplete": "on",
+          "autocorrect": "on",
+          "class": "flt-text-editing",
+          "style": "forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: 0px; left: 0px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px \"PlusJakartaSans\", Arial, sans-serif; width: 281.6px; height: 19px; transform: matrix(1, 0, 0, 1, 370.12, 189.8);"
+        },
+        "ariaLabel": null,
+        "role": null,
+        "ariaChecked": null,
+        "ariaSelected": null,
+        "ariaExpanded": null,
+        "tabIndex": null,
+        "value": "",
+        "readonly": false,
+        "textContent": "",
+        "innerText": "",
+        "visible": true,
+        "onScreen": true,
+        "rect": {
+          "top": 190,
+          "left": 370,
+          "width": 282,
+          "height": 19,
+          "bottom": 209,
+          "right": 652
+        },
+        "selectorHints": [
+          "input.flt-text-editing"
+        ]
+      }
+    ],
+    "scrollContainers": [],
+    "canvases": [],
+    "flutterShell": [
+      {
+        "index": 0,
+        "treePath": "flutter-view[0]",
+        "depth": 0,
+        "tag": "flutter-view",
+        "id": null,
+        "classes": null,
+        "attributes": {
+          "style": "position: absolute; inset: 0px; cursor: default;"
+        },
+        "ariaLabel": null,
+        "role": null,
+        "ariaChecked": null,
+        "ariaSelected": null,
+        "ariaExpanded": null,
+        "tabIndex": null,
+        "value": null,
+        "readonly": false,
+        "textContent": "Campus",
+        "innerText": "Campus",
+        "visible": true,
+        "onScreen": true,
+        "rect": {
+          "top": 0,
+          "left": 0,
+          "width": 2144,
+          "height": 893,
+          "bottom": 893,
+          "right": 2144
+        },
+        "selectorHints": []
+      },
+      {
+        "index": 1,
+        "treePath": "flt-glass-pane[1]",
+        "depth": 0,
+        "tag": "flt-glass-pane",
+        "id": null,
+        "classes": null,
+        "attributes": {},
+        "ariaLabel": null,
+        "role": null,
+        "ariaChecked": null,
+        "ariaSelected": null,
+        "ariaExpanded": null,
+        "tabIndex": null,
+        "value": null,
+        "readonly": false,
+        "textContent": "Campus",
+        "innerText": "Campus",
+        "visible": false,
+        "onScreen": false,
+        "rect": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "selectorHints": []
+      },
+      {
+        "index": 2,
+        "treePath": "flt-text-editing-host[2]",
+        "depth": 0,
+        "tag": "flt-text-editing-host",
+        "id": null,
+        "classes": null,
+        "attributes": {},
+        "ariaLabel": null,
+        "role": null,
+        "ariaChecked": null,
+        "ariaSelected": null,
+        "ariaExpanded": null,
+        "tabIndex": null,
+        "value": null,
+        "readonly": false,
+        "textContent": "",
+        "innerText": "",
+        "visible": false,
+        "onScreen": false,
+        "rect": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "selectorHints": []
+      },
+      {
+        "index": 3,
+        "treePath": "flt-semantics-host[3]",
+        "depth": 0,
+        "tag": "flt-semantics-host",
+        "id": null,
+        "classes": null,
+        "attributes": {
+          "style": "position: absolute; transform-origin: 0px 0px 0px; transform: scale(1.11667);"
+        },
+        "ariaLabel": null,
+        "role": null,
+        "ariaChecked": null,
+        "ariaSelected": null,
+        "ariaExpanded": null,
+        "tabIndex": null,
+        "value": null,
+        "readonly": false,
+        "textContent": "",
+        "innerText": "",
+        "visible": false,
+        "onScreen": false,
+        "rect": {
+          "top": 0,
+          "left": 0,
+          "width": 0,
+          "height": 0,
+          "bottom": 0,
+          "right": 0
+        },
+        "selectorHints": []
+      }
+    ],
+    "uniqueAriaLabels": [],
+    "uniqueRoles": [],
+    "labelIndex": {}
+  },
+  "hints": {
+    "ifAllFailed": "Semantics tree never populated — accessibility may be off. Only canvas + hidden flt-text-editing inputs exist.",
+    "reportsPage": "Navigate to #/inventory/settings/reports and open Sitename filter before testing element 2.",
+    "searchPage": "Navigate to inventory search; type 3+ chars before testing element 8.",
+    "historyPage": "Open a device detail modal and click History Details before testing 9–12."
+  }
+}

@@ -53,21 +53,23 @@ app.post("/start-intake", (req, res) => {
 });
 
 app.post("/extension-data", async (req, res) => {
-  const { csv_data, history_rows } = req.body || {};
+  const { serial, product_name, school_name, history_rows } = req.body || {};
 
   if (!session.iiq_ticket || !session.asset_tag || !session.tech_initials) {
     return res.json({ success: false, error: "No active intake session" });
   }
 
-  if (csv_data === undefined || csv_data === null || history_rows === undefined) {
-    return res.json({ success: false, error: "Missing csv_data or history_rows" });
+  if (!serial || !product_name || !school_name || !Array.isArray(history_rows)) {
+    return res.json({ success: false, error: "Missing serial, product_name, school_name, or history_rows" });
   }
 
   const payload = {
     iiq_ticket: session.iiq_ticket,
     asset_tag: session.asset_tag,
     tech_initials: session.tech_initials,
-    csv_data,
+    serial,
+    product_name,
+    school_name,
     history_rows,
   };
 

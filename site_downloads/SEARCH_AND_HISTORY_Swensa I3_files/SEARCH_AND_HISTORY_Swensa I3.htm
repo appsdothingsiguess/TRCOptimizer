@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+    <!-- base href="https://ims.lisd.net/" -->
+
+    <meta charset="UTF-8">
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="description" content="A new Flutter project.">
+
+    <!-- To remove cache -->
+    <meta http-equiv="expires" content="0">
+
+    <!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="dims">
+    <link rel="apple-touch-icon" href="https://ims.lisd.net/icons/Icon-192.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://ims.lisd.net/i_logo1.png">
+
+    <title>Swensa I3</title>
+    <link rel="manifest" href="https://ims.lisd.net/manifest.json">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <!-- Firebase SDK -->
+    <script src="SEARCH_AND_HISTORY_Swensa%20I3_files/firebase-app-compat_SHZo.js"></script>
+    <script src="SEARCH_AND_HISTORY_Swensa%20I3_files/firebase-analytics-compat_SHZo.js"></script>
+    <script>
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDWHjIfydD7L8vC3095E2q1xrqj8K8jIf8",
+        authDomain: "dims-67dc4.firebaseapp.com",
+        projectId: "dims-67dc4",
+        storageBucket: "dims-67dc4.firebasestorage.app",
+        messagingSenderId: "487587678422",
+        appId: "1:487587678422:web:227ac8e3456d71f50c6177",
+        measurementId: "G-8QTN73D7SQ"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      
+      // Initialize Analytics
+      const analytics = firebase.analytics();
+      
+      console.log("Firebase initialized successfully");
+      
+      // Dynamically change favicon based on URL
+      (function() {
+        const faviconLink = document.querySelector("link[rel='icon']");
+        if (window.location.href.includes("ticket.novuscenter")) {
+          // For ticket.novuscenter, use the custom logo from server
+          // Note: This will be set after the app loads and gets the picture name
+          // For now, we'll keep the default and let the app update it if needed
+          console.log("Running on ticket.novuscenter domain");
+        } else {
+          // For other domains, use the default favicon
+          if (faviconLink) {
+            faviconLink.href = "i_logo1.png";
+          }
+        }
+      })();
+    </script>
+  <script src="SEARCH_AND_HISTORY_Swensa%20I3_files/js_SHZo" async=""></script><meta flt-viewport="" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><script type="text/javascript" crossorigin="anonymous">            window.ff_trigger_firebase_core = async (callback) => {
+              console.debug("Initializing Firebase firebase_core");
+              callback(await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"));
+            };
+          </script><script type="text/javascript" crossorigin="anonymous">            window.ff_trigger_firebase_analytics = async (callback) => {
+              console.debug("Initializing Firebase firebase_analytics");
+              callback(await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js"));
+            };
+          </script><meta id="flutterweb-theme" name="theme-color" content="#ffffff"><style></style><style></style><style></style></head>
+
+  <body flt-renderer="canvaskit (auto-selected)" flt-build-mode="release" spellcheck="false" flt-embedding="full-page" style="position: fixed; inset: 0px; overflow: hidden; padding: 0px; margin: 0px; user-select: none; touch-action: none;">
+    <!-- This script installs service_worker.js to provide PWA functionality to
+       application. For more information, see:
+       https://developers.google.com/web/fundamentals/primers/service-workers -->
+    <script>
+      const serviceWorkerVersion = "3193067960";
+      var scriptLoaded = false;
+      function loadMainDartJs() {
+        if (scriptLoaded) {
+          return;
+        }
+        scriptLoaded = true;
+        var scriptTag = document.createElement("script");
+        scriptTag.src = "main.dart.js";
+        scriptTag.type = "application/javascript";
+        document.body.append(scriptTag);
+      }
+
+      // Cross-browser compatible message listener
+      // Check if we're in an iframe before accessing window.parent
+      try {
+        if (window.parent !== window) {
+          window.parent.addEventListener("message", handleMessage);
+        }
+      } catch (e) {
+        // Cross-origin or other error, continue anyway
+      }
+      // Always listen on window for messages (works in all browsers)
+      window.addEventListener("message", handleMessage);
+
+      function handleMessage(e) {
+        if (e.data.toString().charAt(0) == "g") {
+          var ppp = e.data.substring(1);
+          var list = ppp.split(",");
+          //console.log("index.html  list[0]=" + list[0] + ", list[1]=" + list[1])
+          localStorage.removeItem("inventoryst");
+          localStorage.removeItem("inventoryen");
+          localStorage.setItem("inventoryst", list[0]);
+          localStorage.setItem("inventoryen", list[1]);
+        }
+
+        //  console.log("gopi"+e);
+        if (e.data.toString().charAt(0) == "&") {
+          //  console.log("vvvvvvvvvvvvvv");
+          var ppp = e.data.substring(1);
+          localStorage.removeItem("listvalue");
+          localStorage.setItem("listvalue", ppp);
+          var ttt = localStorage.getItem("listvalue");
+        } else {
+          //  console.log("uuuuulllllllllllllllllllllllllllll11111");
+        }
+        if (e.data.toString().charAt(0) == "-") {
+          var ppp = e.data.substring(1);
+          localStorage.removeItem("start");
+          localStorage.setItem("start", ppp);
+          var ttt = localStorage.getItem("start");
+          //  console.log("uuuuulllllllllllllllllllllllllllll11111  "+ttt);
+        }
+
+        if (e.data.toString().charAt(0) == "+") {
+          //  console.log("vvvvvvvvvvvvvv");
+          var ppp = e.data.substring(1);
+          //  console.log("vvvvvvvvvvvvvv"+ppp);
+          localStorage.removeItem("listvaluemissing");
+          localStorage.setItem("listvaluemissing", ppp);
+          var ttt = localStorage.getItem("listvaluemissing");
+        }
+
+        if (e.data.toString().charAt(0) == "^") {
+          //  console.log("vvvvvvvvvvvvvv");
+          var ppp = e.data.substring(1);
+          //  console.log("vvvvvvvvvvvvvv"+ppp);
+          localStorage.removeItem("listvaluemissing1");
+          localStorage.setItem("listvaluemissing1", ppp);
+          var ttt = localStorage.getItem("listvaluemissing1");
+        }
+        //  localStorage.removeItem("listvalue")
+        //  localStorage.setItem("listvalue",""+e.data);;
+        //  var ttt= localStorage.getItem("listvalue");
+        // }
+      }
+
+      if ("serviceWorker" in navigator) {
+        // Service workers are supported. Use them.
+        window.addEventListener("load", function () {
+          // Wait for registration to finish before dropping the <script> tag.
+          // Otherwise, the browser will load the script multiple times,
+          // potentially different versions.
+          var serviceWorkerUrl =
+            "flutter_service_worker.js?v=" + serviceWorkerVersion;
+          navigator.serviceWorker.register(serviceWorkerUrl).then((reg) => {
+            function waitForActivation(serviceWorker) {
+              serviceWorker.addEventListener("statechange", () => {
+                if (serviceWorker.state == "activated") {
+                  console.log("Installed new service worker.");
+                  loadMainDartJs();
+                }
+              });
+            }
+            if (!reg.active && (reg.installing || reg.waiting)) {
+              // No active web worker and we have installed or are installing
+              // one for the first time. Simply wait for it to activate.
+              waitForActivation(reg.installing || reg.waiting);
+            } else if (!reg.active.scriptURL.endsWith(serviceWorkerVersion)) {
+              // When the app updates the serviceWorkerVersion changes, so we
+              // need to ask the service worker to update.
+              console.log("New service worker available.");
+              reg.update();
+              waitForActivation(reg.installing);
+            } else {
+              // Existing service worker is still good.
+              console.log("Loading app from service worker.");
+              loadMainDartJs();
+            }
+          });
+
+          // If service worker doesn't succeed in a reasonable amount of time,
+          // fallback to plaint <script> tag.
+          setTimeout(() => {
+            if (!scriptLoaded) {
+              console.warn(
+                "Failed to load app from service worker. Falling back to plain <script> tag."
+              );
+              loadMainDartJs();
+            }
+          }, 4000);
+        });
+      } else {
+        // Service workers not supported. Just drop the <script> tag.
+        loadMainDartJs();
+      }
+    </script>
+  
+<div id="sCLExtInstalled" data-version="8.1" style="display: none;">1</div><script src="SEARCH_AND_HISTORY_Swensa%20I3_files/main.dart_SHZo.js" type="application/javascript"></script><flt-file-picker-inputs id="__file_picker_web-file-input"></flt-file-picker-inputs><script src="SEARCH_AND_HISTORY_Swensa%20I3_files/flutter_dropzone_SHZo.js" type="application/javascript" defer="defer"></script><flutter-view style="position: absolute; inset: 0px; cursor: pointer;"><flt-glass-pane><flt-platform-view id="flt-pv-0" slot="flt-pv-slot-0"><div style="width: 100%; height: 100%;" class="web-electable-region-context-menu"></div></flt-platform-view><flt-platform-view id="flt-pv-1" slot="flt-pv-slot-1"><div style="width: 100%; height: 100%;" class="web-electable-region-context-menu"></div></flt-platform-view><flt-platform-view id="flt-pv-2" slot="flt-pv-slot-2"><div style="width: 100%; height: 100%;" class="web-electable-region-context-menu"></div></flt-platform-view></flt-glass-pane><style id="flt-text-editing-stylesheet"></style><flt-text-editing-host><form novalidate="" method="post" action="#" style="white-space: pre-wrap; align-content: center; padding: 0px; opacity: 1; color: transparent; background: transparent; outline: none; border: medium; resize: none; transform-origin: 0px 0px 0px; width: 0px; height: 0px; caret-color: transparent; top: -9999px; left: -9999px;"><input autocomplete="on" autocorrect="on" class="flt-text-editing" style="forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px &quot;PlusJakartaSans&quot;, Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 370.12, 189.8);" value="techn"><input style="white-space: pre-wrap; align-content: center; padding: 0px; opacity: 1; color: transparent; background: transparent; outline: none; border: medium; resize: none; transform-origin: 0px 0px 0px; top: -9999px; left: -9999px; width: 0px; height: 0px; caret-color: transparent;" class="submitBtn" type="submit"></form><form novalidate="" method="post" action="#" style="white-space: pre-wrap; align-content: center; padding: 0px; opacity: 1; color: transparent; background: transparent; outline: none; border: medium; resize: none; transform-origin: 0px 0px 0px; width: 0px; height: 0px; caret-color: transparent; top: -9999px; left: -9999px;"><input autocomplete="on" autocorrect="on" class="flt-text-editing" style="forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px &quot;PlusJakartaSans&quot;, Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 370.12, 189.8);" value="tech"><input style="white-space: pre-wrap; align-content: center; padding: 0px; opacity: 1; color: transparent; background: transparent; outline: none; border: medium; resize: none; transform-origin: 0px 0px 0px; top: -9999px; left: -9999px; width: 0px; height: 0px; caret-color: transparent;" class="submitBtn" type="submit"></form><form novalidate="" method="post" action="#" style="white-space: pre-wrap; align-content: center; padding: 0px; opacity: 1; color: transparent; background: transparent; outline: none; border: medium; resize: none; transform-origin: 0px 0px 0px; width: 0px; height: 0px; caret-color: transparent; top: -9999px; left: -9999px;"><input readonly="readonly" autocomplete="on" autocorrect="on" class="flt-text-editing" style="forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px &quot;PlusJakartaSans&quot;, Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 362.12, 121.8);"><input style="white-space: pre-wrap; align-content: center; padding: 0px; opacity: 1; color: transparent; background: transparent; outline: none; border: medium; resize: none; transform-origin: 0px 0px 0px; top: -9999px; left: -9999px; width: 0px; height: 0px; caret-color: transparent;" class="submitBtn" type="submit"></form><form novalidate="" method="post" action="#" style="white-space: pre-wrap; align-content: center; padding: 0px; opacity: 1; color: transparent; background: transparent; outline: none; border: medium; resize: none; transform-origin: 0px 0px 0px; width: 0px; height: 0px; caret-color: transparent; top: -9999px; left: -9999px;"><input autocomplete="on" autocorrect="on" class="flt-text-editing" style="forced-color-adjust: none; white-space: pre-wrap; align-content: center; position: absolute; top: -9999px; left: -9999px; padding: 0px; opacity: 1; color: transparent; background: transparent; caret-color: transparent; outline: none; border: medium; resize: none; text-shadow: none; overflow: hidden; transform-origin: 0px 0px 0px; font: 15px &quot;PlusJakartaSans&quot;, Arial, sans-serif; width: 0px; height: 0px; transform: matrix(1, 0, 0, 1, 370.12, 189.8);" value="tech"><input style="white-space: pre-wrap; align-content: center; padding: 0px; opacity: 1; color: transparent; background: transparent; outline: none; border: medium; resize: none; transform-origin: 0px 0px 0px; top: -9999px; left: -9999px; width: 0px; height: 0px; caret-color: transparent;" class="submitBtn" type="submit"></form></flt-text-editing-host><flt-semantics-host style="position: absolute; transform-origin: 0px 0px 0px; transform: scale(1.11667);"></flt-semantics-host></flutter-view></body></html>

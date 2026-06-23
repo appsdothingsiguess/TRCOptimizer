@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "TRC_Opt i3 Connector",
+  "version": "1.0.0",
+  "description": "MacBook intake automation — connects Firefox to TRC_Opt relay",
+
+  "permissions": [
+    "activeTab",
+    "tabs"
+  ],
+
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://ims.lisd.net/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "trcopt-connector@lisd.net",
+      "strict_min_version": "109.0"
+    }
+  }
+}
