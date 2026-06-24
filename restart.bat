@@ -1,4 +1,10 @@
-taskkill /F /IM node.exe /T
-taskkill /F /IM python.exe /T
-timeout /t 2 /nobreak
-start "" cmd /c "cd relay && node server.js"
+@echo off
+cd /d "%~dp0"
+
+echo Stopping TRC Optimizer...
+taskkill /F /IM node.exe /T 2>nul
+taskkill /F /IM python.exe /T 2>nul
+timeout /t 2 /nobreak >nul
+
+echo Starting relay...
+start "TRC_Opt Relay" /D "%~dp0relay" cmd /k node server.js

@@ -38,11 +38,13 @@ Install these once on the TRC workstation:
 
 ---
 
-## First-time setup
+## First-time setup (production PC)
+
+These steps are for the **TRC workstation** where the app runs. If you are packaging on a **dev machine**, skip to [Deploying to the production PC](#deploying-to-the-production-pc) — run `npm`/`pip` on production only, not on dev.
 
 ### 1. Get the project on the machine
 
-Clone or copy this repository to a fixed location, for example:
+Copy the packaged `dist\TRC_Opt` folder (or clone the repo) to a fixed location, for example:
 
 ```
 C:\TRC_Opt\
@@ -50,25 +52,23 @@ C:\TRC_Opt\
 
 Keep the folder structure intact. The Excel writer expects `data/macbook_intake.xlsx` relative to the repo root.
 
-### 2. Install Node dependencies
+### 2. Install dependencies (production only)
 
-Open Command Prompt or PowerShell:
+On the **production PC**, run **`setup-production.bat`** at the repo root (runs `npm ci` in `relay\` and `pip install` in `backend\`).
+
+Or manually:
 
 ```bat
 cd C:\TRC_Opt\relay
 npm install
-```
 
-### 3. Install Python dependencies
-
-```bat
 cd C:\TRC_Opt\backend
 python -m pip install -r requirements.txt
 ```
 
 Optional but recommended: use a virtual environment in `backend/` before running `pip install`.
 
-### 4. Confirm the Excel file exists
+### 3. Confirm the Excel file exists
 
 The intake workbook must be present at:
 
@@ -88,7 +88,7 @@ Do **not** recreate this file from scratch. It has pre-formatted rows and header
 | H | Tech initials |
 | I | Break count |
 
-### 5. Load the Firefox extension
+### 4. Load the Firefox extension
 
 The extension must be loaded **once per Firefox session** (Firefox drops temporary add-ons on restart).
 
@@ -99,7 +99,7 @@ The extension must be loaded **once per Firefox session** (Firefox drops tempora
 
 You should see **TRC_Opt i3 Connector** in the list. The extension connects to `ws://localhost:4321/ws` automatically.
 
-### 6. Log in to i3
+### 5. Log in to i3
 
 Open [ims.lisd.net](https://ims.lisd.net) in Firefox and sign in. The extension reads the JWT from `localStorage` (`flutter.loginToken`). Tokens last ~10 hours; if lookup fails with a login error, sign in again.
 
@@ -233,6 +233,24 @@ See **`AGENTS.md`** for interface contracts, Excel rules, and i3 API details.
 
 ---
 
-## License / scope
+## Deploying to the production PC
+
+Dev and production are **different machines**. On dev you only package files — **do not run `setup-production.bat` or `npm install` on dev for deployment**.
+
+**On your dev machine (before copy):**
+
+1. Run **`package-for-production.bat`** — copies files only; no npm/pip.
+2. Copy **`dist\TRC_Opt`** to USB or a network share.
+
+**On the production PC (after copy):**
+
+1. Paste to e.g. `C:\TRC_Opt\`
+2. Run **`setup-production.bat`** once there (`npm` + `pip` on that PC).
+3. Load `extension\manifest.json` in Firefox; log in to i3.
+4. Run **`start.bat`**.
+
+Full steps, update procedure (do not overwrite live Excel), and firewall notes: **`DEPLOY.md`**.
+
+---
 
 Internal LISD TRC tooling. POC scope: MacBook intake workflow only.
