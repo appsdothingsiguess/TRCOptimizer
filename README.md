@@ -1,0 +1,238 @@
+# TRC Optimizer
+
+Internal LISD tool for the Technology Repair Center (TRC). It automates MacBook intake data entry: a tech scans an asset tag, fills two fields, and the system looks up the device in i3, counts repair visits, and writes a row to the intake Excel sheet.
+
+Runs entirely on one Windows machine on the local LISD network. No cloud, no database, no external users.
+
+---
+
+## How it works
+
+```
+Firefox Extension  ──WebSocket──►  Node.js Relay (:4321)  ──HTTP──►  FastAPI (:8000, internal)
+       │                                  │                              │
+       │  i3 API (ims.lisd.net)           │  serves frontend             │  openpyxl
+       └──────────────────────────────────┴──────────────────────────────┴──► data/macbook_intake.xlsx
+```
+
+1. Tech opens the intake form in a browser (see [Accessing the app](#accessing-the-app) below).
+2. Tech enters **Asset Tag**, **IIQ Ticket**, and **Tech Initials**, then clicks **Run Intake**.
+3. The relay tells the Firefox extension to look up the device in i3.
+4. The extension calls the i3 JSON API (no screen scraping), sends device data back to the relay.
+5. FastAPI counts TRC repair visits and appends one row to the Excel file.
+6. The browser shows success (serial, school, break count) or an error message.
+
+---
+
+## Prerequisites
+
+Install these once on the TRC workstation:
+
+| Requirement | Notes |
+|-------------|-------|
+| **Windows 10/11** | Tool is designed for a single on-site machine |
+| **Node.js 18+** | Must be on `PATH` as `node` |
+| **Python 3.10+** | Must be on `PATH` as `python` (used by the relay to spawn FastAPI) |
+| **Firefox 109+** | For the unpacked MV2 extension |
+| **Network** | Access to `ims.lisd.net` (i3) from the browser |
+
+---
+
+## First-time setup
+
+### 1. Get the project on the machine
+
+Clone or copy this repository to a fixed location, for example:
+
+```
+C:\TRC_Opt\
+```
+
+Keep the folder structure intact. The Excel writer expects `data/macbook_intake.xlsx` relative to the repo root.
+
+### 2. Install Node dependencies
+
+Open Command Prompt or PowerShell:
+
+```bat
+cd C:\TRC_Opt\relay
+npm install
+```
+
+### 3. Install Python dependencies
+
+```bat
+cd C:\TRC_Opt\backend
+python -m pip install -r requirements.txt
+```
+
+Optional but recommended: use a virtual environment in `backend/` before running `pip install`.
+
+### 4. Confirm the Excel file exists
+
+The intake workbook must be present at:
+
+```
+data/macbook_intake.xlsx
+```
+
+Do **not** recreate this file from scratch. It has pre-formatted rows and headers. The app only writes **cell values** into the first empty row (column B empty, row ≥ 4).
+
+| Column | Field |
+|--------|-------|
+| B | Date (today) |
+| C | IIQ ticket |
+| E | Asset tag |
+| F | Serial |
+| G | School name |
+| H | Tech initials |
+| I | Break count |
+
+### 5. Load the Firefox extension
+
+The extension must be loaded **once per Firefox session** (Firefox drops temporary add-ons on restart).
+
+1. Open Firefox → `about:debugging`
+2. Click **This Firefox**
+3. Click **Load Temporary Add-on…**
+4. Select `extension/manifest.json` from this repo
+
+You should see **TRC_Opt i3 Connector** in the list. The extension connects to `ws://localhost:4321/ws` automatically.
+
+### 6. Log in to i3
+
+Open [ims.lisd.net](https://ims.lisd.net) in Firefox and sign in. The extension reads the JWT from `localStorage` (`flutter.loginToken`). Tokens last ~10 hours; if lookup fails with a login error, sign in again.
+
+---
+
+## Running the app
+
+### Start (daily / after reboot)
+
+Double-click **`start.bat`** at the repo root, or run manually:
+
+```bat
+cd C:\TRC_Opt\relay
+node server.js
+```
+
+`start.bat` prints network URLs in its window, then opens the form in your default browser using the PC’s **IPv4 address** (e.g. `http://192.168.1.50:4321`). If no IP is found, it falls back to `localhost`. Leave that window open or note the printed URL so other devices know what to use.
+
+The relay:
+
+- Listens on **port 4321** (frontend + WebSockets)
+- Spawns **FastAPI on 127.0.0.1:8000** automatically (not reachable from other machines)
+
+### Accessing the app
+
+| Where you are | URL to use |
+|---------------|------------|
+| **On the PC running the relay** | `http://localhost:4321` |
+| **Another device on the LISD network** | `http://<device-ip>:4321` |
+
+`localhost` only works on the machine where Node is running. From a phone, tablet, or another workstation, you **must** use that PC’s IP address plus port **4321** — for example `http://192.168.1.50:4321`.
+
+**Find the device IP (on the host PC):**
+
+```bat
+ipconfig
+```
+
+Use the **IPv4 Address** for your active adapter (usually Ethernet or Wi‑Fi on the LISD LAN).
+
+**Firewall:** Other machines cannot connect until Windows Firewall allows inbound TCP **4321** on the host (private/LAN profile). FastAPI stays on `127.0.0.1` and is never opened to the network — only the relay port is shared.
+
+### End-of-day restart (optional)
+
+**`restart.bat`** kills Node and Python, waits briefly, and starts the relay again. Configure Windows Task Scheduler to run it daily (e.g. 7:00 PM) so the stack resets after each shift. After a restart, reload the Firefox extension and confirm i3 login if needed.
+
+---
+
+## Daily workflow (tech)
+
+1. **Start the stack** — run `start.bat` (or confirm the relay is already running).
+2. **Firefox** — load the extension if Firefox was restarted; stay logged in to i3.
+3. **Open the form** — on the host PC use `http://localhost:4321`; from anywhere else on the network use `http://<device-ip>:4321` (not `localhost`).
+4. **Scan / type asset tag** — focus starts in the Asset Tag field.
+5. **Enter IIQ ticket and tech initials** — **Run Intake** enables when all three fields are filled.
+6. **Click Run Intake** — watch the status area for progress, then success or error.
+7. **Next device** — form clears on success; repeat from step 4.
+
+Success shows serial, product, school, and break count. The row is already in Excel.
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|----------------|-----|
+| **Page won’t load from another PC** | Using `localhost` off the host, or firewall blocking 4321 | Use `http://<device-ip>:4321`; allow port 4321 in Windows Firewall on the host |
+| **Extension not connected** on Run Intake | Relay not running, or extension not loaded | Start relay; reload add-on via `about:debugging` |
+| **Not logged in to i3** | No JWT in Firefox | Log in at ims.lisd.net in the same Firefox profile |
+| **Token expired** | i3 session older than ~10 hours | Log out and back in to i3 |
+| **Backend unreachable** | Python/uvicorn failed to start | Check console where `node server.js` runs; verify `pip install -r requirements.txt` |
+| **No empty intake row** | Excel sheet full (rows 4–522 used) | Add rows or replace workbook per TRC procedure (preserve formatting) |
+| **Tag not found** | Wrong asset tag | Verify tag in i3 manually |
+
+### Debug page
+
+With the relay running, open the debug page using the same host rule as the main form:
+
+- On the host: `http://localhost:4321/debug`
+- Over the network: `http://<device-ip>:4321/debug`
+
+Shows extension connection status, current session, last intake result, and recent relay/extension logs.
+
+Health check: `http://<device-ip>:4321/backend-health` (or `localhost` on the host).
+
+---
+
+## Development
+
+### Project layout
+
+```
+TRC_Opt/
+├── start.bat / restart.bat   # Windows launch scripts
+├── relay/                    # Node.js Express + WebSocket relay
+├── backend/                  # FastAPI, break counter, Excel writer
+├── frontend/                 # HTML, CSS, TypeScript → main.js
+├── extension/                # Firefox MV2 connector (production)
+├── extension-test/           # Throwaway i3 selector tester (not production)
+├── data/                     # macbook_intake.xlsx (runtime data)
+└── AGENTS.md                 # Full agent/architecture reference
+```
+
+### Frontend TypeScript
+
+`frontend/main.ts` and `frontend/debug.ts` compile to checked-in `.js` files. After editing `.ts`, recompile (requires TypeScript installed globally or via `npx`):
+
+```bat
+cd frontend
+npx tsc main.ts --target ES2020 --strict false --skipLibCheck --outFile main.js
+npx tsc debug.ts --target ES2020 --strict false --skipLibCheck --outFile debug.js
+```
+
+Refresh the browser to pick up changes. No frontend build step runs automatically.
+
+### Backend / relay
+
+- Backend changes: restart the relay (or kill Python and let the relay respawn uvicorn).
+- Relay changes: stop `node server.js` and start again.
+
+See **`AGENTS.md`** for interface contracts, Excel rules, and i3 API details.
+
+---
+
+## Security notes
+
+- FastAPI binds to **127.0.0.1 only** — not exposed to the network.
+- Credentials are **never written to disk**; i3 auth lives in the browser session only.
+- The frontend talks to the relay only, never directly to FastAPI.
+- Do not commit `.env` files or live credentials.
+
+---
+
+## License / scope
+
+Internal LISD TRC tooling. POC scope: MacBook intake workflow only.

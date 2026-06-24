@@ -1,5 +1,30 @@
-// tsc main.ts --target ES2020 --strict false --outFile main.js
+// tsc main.ts --target ES2020 --strict false --skipLibCheck --outFile main.js
+function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("trc-theme", theme);
+    const themeToggleBtn = document.getElementById("theme-toggle");
+    if (themeToggleBtn) {
+        themeToggleBtn.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+        themeToggleBtn.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+    }
+}
+function initTheme() {
+    const saved = localStorage.getItem("trc-theme");
+    if (saved === "light" || saved === "dark") {
+        applyTheme(saved);
+    }
+    else {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        applyTheme(prefersDark ? "dark" : "light");
+    }
+}
+initTheme();
 document.addEventListener("DOMContentLoaded", () => {
+    const themeToggleBtn = document.getElementById("theme-toggle");
+    themeToggleBtn.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme");
+        applyTheme(current === "dark" ? "light" : "dark");
+    });
     const assetTagEl = document.getElementById("asset-tag");
     const iiqTicketEl = document.getElementById("iiq-ticket");
     const techInitialsEl = document.getElementById("tech-initials");

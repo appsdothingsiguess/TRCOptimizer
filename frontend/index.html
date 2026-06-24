@@ -4,30 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TRC Optimizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Merriweather:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="main.js" defer></script>
 </head>
 <body>
-  <div class="card">
-    <div class="card-header">
-      <img src="assets/lisd-logo.png" alt="LISD Logo">
+  <header class="site-header">
+    <img src="assets/lisd-logo.png" alt="LISD Logo">
+  </header>
+  <main class="content-column">
+    <h1 class="page-title">TRC Optimizer</h1>
+    <div class="card">
+      <form>
+        <div class="form-group">
+          <label for="asset-tag">Asset Tag</label>
+          <input type="text" id="asset-tag" name="asset-tag" autofocus>
+        </div>
+        <div class="form-group">
+          <label for="iiq-ticket">IIQ Ticket</label>
+          <input type="text" id="iiq-ticket" name="iiq-ticket">
+        </div>
+        <div class="form-group">
+          <label for="tech-initials">Tech Initials</label>
+          <input type="text" id="tech-initials" name="tech-initials">
+        </div>
+        <button type="button" id="run-intake" disabled>Run Intake</button>
+      </form>
+      <div id="status"></div>
     </div>
-    <form>
-      <div class="form-group">
-        <label for="asset-tag">Asset Tag</label>
-        <input type="text" id="asset-tag" name="asset-tag" autofocus>
-      </div>
-      <div class="form-group">
-        <label for="iiq-ticket">IIQ Ticket</label>
-        <input type="text" id="iiq-ticket" name="iiq-ticket">
-      </div>
-      <div class="form-group">
-        <label for="tech-initials">Tech Initials</label>
-        <input type="text" id="tech-initials" name="tech-initials">
-      </div>
-      <button type="button" id="run-intake" disabled>Run Intake</button>
-    </form>
-    <div id="status"></div>
-  </div>
+  </main>
+  <button type="button" id="theme-toggle" aria-label="Toggle dark mode">Dark mode</button>
 </body>
 </html>

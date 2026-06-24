@@ -1,0 +1,572 @@
+/*
+ * LISD client.css
+ * Load order: 3rd (after main.css and campus CSS)
+ * Scope: Typography only — font-family, font-size, font-weight,
+ *        line-height, letter-spacing, paragraph spacing
+ * WCAG 2.1 AA compliant
+ * Last updated: 2026-04-24
+ */
+
+
+/* ============================================================
+   SECTION 1 — BASE
+   ============================================================ */
+
+html {
+  font-size: clamp(15px, 1.1vw, 17px);
+}
+
+body {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+#fsPageContent p,
+#fsPageBodyWrapper p {
+  line-height: 1.8;
+  margin-bottom: 1.25em;
+}
+
+body:not(.fsComposeMode) #fsPageContent p:last-child {
+  margin-bottom: 0;
+}
+
+
+/* ============================================================
+   SECTION 2 — HEADINGS
+   Merriweather serif for h1–h4 on interior pages only.
+   Homepage headings are excluded — the homepage uses custom
+   pixel-sized elements (.fsElementTitle, hero banner, calendar
+   sections) that are tightly sized for Montserrat and would
+   break with a different font or size cascade.
+   Montserrat sans for h5–h6 sitewide.
+   ============================================================ */
+
+body:not(.home) h1,
+body:not(.home) h2,
+body:not(.home) h3,
+body:not(.home) h4 {
+  font-family: "Merriweather", serif;
+}
+
+h5, h6 {
+  font-family: "Montserrat", sans-serif;
+}
+
+/* Protect hero banner titles sitewide — these are .fsElementTitle
+   spans, not heading tags, but belt-and-suspenders */
+.hero-banner h1,
+.hero-banner h2,
+.hero-banner h3,
+.hero-banner h4,
+.hero-banner .fsElementTitle {
+  font-family: "Montserrat", sans-serif;
+}
+
+body:not(.home) h1 {
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+body:not(.home) h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+/* Headings inside dark cards inherit white from the card —
+   our primary-color override makes them invisible on dark backgrounds.
+   Reset to inherit so the card's color cascade takes over. */
+.card.dark h1, .card.dark h2, .card.dark h3, .card.dark h4,
+.card.dark h5, .card.dark h6,
+.card.primary h1, .card.primary h2, .card.primary h3, .card.primary h4,
+.card.primary h5, .card.primary h6,
+.card.secondary h1, .card.secondary h2, .card.secondary h3, .card.secondary h4,
+.card.secondary h5, .card.secondary h6 {
+  color: inherit;
+}
+
+body:not(.home) h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.875rem;
+}
+
+body:not(.home) h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+h5 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+h6 {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 999px) {
+  body:not(.home) h1 {
+    font-size: 2.25rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  body:not(.home) h2 {
+    font-size: 1.625rem;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    text-transform: none;
+  }
+
+  body:not(.home) h3 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  body:not(.home) h4 {
+    font-size: 1.125rem;
+  }
+}
+
+body:not(.home) .fsBanner h1,
+body:not(.home) .fsStyleOneThird h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+body:not(.home) .fsBanner h2,
+body:not(.home) .fsStyleOneThird h2 {
+  font-size: 1.375rem;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--primary-color);
+}
+body:not(.home) .fsBanner h3,
+body:not(.home) .fsStyleOneThird h3 {
+  font-size: 1.125rem;
+  line-height: 1.35;
+}
+
+.fsTabs .fsPanel > header h2,
+.fsAccordion .fsPanel > header h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: inherit;
+}
+
+body:not(.home) .fsTitle,
+body:not(.home) .fsYoutubeTitle,
+body:not(.home) .fsVimeoTitle {
+  font-family: "Merriweather", serif;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+}
+
+
+/* ============================================================
+   SECTION 3 — LEAD-IN & BODY COPY VARIANTS
+   ============================================================ */
+
+.lead-in {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 999px) {
+  .lead-in {
+    line-height: 1.65;
+  }
+}
+
+blockquote {
+  font-family: "Merriweather", serif;
+  font-weight: 300;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+.callout-text {
+  font-family: "Merriweather", serif;
+  font-weight: 300;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+cite {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 1.55;
+}
+
+
+/* ============================================================
+   SECTION 4 — LEFT SIDEBAR NAVIGATION
+   ============================================================ */
+
+.nav-sub > header .fsElementTitle {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.nav-sub .fsNavLevel1 > li > a {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.005em;
+  padding-top: 13px;
+  padding-bottom: 13px;
+}
+
+.nav-sub ul li a {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+
+/* ============================================================
+   SECTION 5 — BREADCRUMB
+   ============================================================ */
+
+.fsBreadcrumb ul li {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  line-height: 1.4;
+}
+
+.fsBreadcrumb ul li a {
+  letter-spacing: inherit;
+}
+
+.fsBreadcrumb ul li .fsNavBreadcrumbSeperator {
+  margin: 0 8px;
+}
+
+
+/* ============================================================
+   SECTION 6 — CONSTITUENT / STAFF CARDS
+   ============================================================ */
+
+.fsConstituent .fsFullName,
+.fsConstituentItem .fsFullName {
+  font-family: "Merriweather", serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  margin-bottom: 0.5rem;
+}
+
+.fsConstituentItem > div,
+.fsConstituentProfile > div {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+}
+
+.fsConstituentItem {
+  padding: 28px;
+}
+
+
+/* ============================================================
+   SECTION 7 — CALENDAR EVENTS
+   ============================================================ */
+
+.fsCalendar .fsAllDay,
+.fsCalendar .fsTimeRange,
+.fsCalendar .fsLocation {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.calendar-item .fsDayContainer .fsDate .fsDay,
+body:not(.fsComposeMode) .calendar-events article .fsDate .fsDay {
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.calendar-item .fsDayContainer .fsDate .fsMonth,
+body:not(.fsComposeMode) .calendar-events article .fsDate .fsMonth {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.calendar-item .fsDayContainer .fsDate .fsDayName,
+body:not(.fsComposeMode) .calendar-events article .fsDate .fsDayName {
+  font-family: "Merriweather", serif;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+}
+
+.calendar-item .fsTimeRange,
+body:not(.fsComposeMode) .calendar-events article .fsTimeRange {
+  font-size: 0.875rem;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   SECTION 8 — NEWS / POST ELEMENTS
+   ============================================================ */
+
+.fsPostElement .fsTitle {
+  font-family: "Merriweather", serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.fsPostElement .fsSummary,
+.fsPostElement .fsBody {
+  font-family: "Merriweather", serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: 0.005em;
+}
+
+.fsPostElement .fsAuthor,
+.fsPostElement .fsDateTime {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.fsPostElement .fsReadMoreLink {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   SECTION 9 — BUTTONS
+   ============================================================ */
+
+.button-1,
+.button-2,
+.button-3,
+.button-4,
+.button-5,
+.button-on-dark-1,
+.button-on-dark-2,
+.fsStyleDefaultButton,
+.fsStyleUpdateButton,
+.scroll-up {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+}
+
+.button-large {
+  font-size: 0.875rem !important;
+  letter-spacing: 0.1em !important;
+  font-weight: 700 !important;
+}
+
+.download-button,
+.external-link-button {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+
+/* ============================================================
+   SECTION 10 — TABS
+   ============================================================ */
+
+.fsTabs .fsTabsNav li a {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+
+/* ============================================================
+   SECTION 11 — FOOTER
+   ============================================================ */
+
+.fsFooter .footer-main-content .footer-links .fsNavLevel1 li a {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  line-height: 1.4;
+}
+
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .fsLocationLink {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .inner-div .fsLocationAddress,
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .inner-div .fsLocationCity,
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .inner-div .fsLocationState,
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .inner-div .fsLocationZip,
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .fsLocationPhone,
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .fsLocationPhone a,
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .fsLocationFax {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+}
+
+/* The phone icon circle is a ::before pseudo-element sized by padding.
+   Our line-height on the parent inflates its height into an oval.
+   Reset to 1 so it stays circular like the map icon. */
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .fsLocationPhone a:before,
+.fsFooter .footer-main-content .footer-locations .fsLocationSingleItem .fsLocationFax:before {
+  line-height: 1;
+}
+
+
+/* ============================================================
+   SECTION 12 — LINKS
+   ============================================================ */
+
+/* In-content plain links — underline satisfies WCAG 1.4.1,
+   bold weight not needed and conflicts with Merriweather body text.
+   :not([class]) leaves nav, buttons, and styled links untouched. */
+#fsPageContent a:not([class]),
+#fsPageBodyWrapper p a:not([class]) {
+  font-weight: 500;
+}
+
+
+/* ============================================================
+   SECTION 13 — WCAG 2.1 AA FOCUS INDICATORS
+   ============================================================ */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+.nav-sub ul li a:focus-visible,
+.fsNavLevel1 a:focus-visible,
+.fsBreadcrumb ul li a:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+a:focus,
+button:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+
+/* ============================================================
+   SECTION 14 — MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .nav-sub .fsNavLevel1 > li > a {
+    font-size: 1rem;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .fsPostElement .fsSummary,
+  .fsPostElement .fsBody {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+  }
+
+  .fsPostElement .fsTitle {
+    font-size: 1.125rem;
+  }
+
+  .button-1,
+  .button-2,
+  .button-3,
+  .button-4,
+  .button-5 {
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+  }
+}
+
+
+/* ============================================================
+   SECTION 15 — OVERFLOW GUARD
+   ============================================================ */
+
+img,
+video,
+iframe,
+embed,
+object {
+  max-width: 100%;
+}

@@ -21,6 +21,8 @@ These constraints exist because this tool runs on LISD network infrastructure. V
 
 🚫 Do not add any code that calls external APIs or sends data outside the local network.
 
+**Narrow exception — Google Fonts only:** Stylesheet requests to `fonts.googleapis.com` and font file requests to `fonts.gstatic.com` are permitted via `<link>` tags in `frontend/index.html` only (Montserrat + Merriweather). No other external network requests from the frontend.
+
 🚫 Do not commit or push to any remote repository without explicit instruction.
 
 ## Scope discipline

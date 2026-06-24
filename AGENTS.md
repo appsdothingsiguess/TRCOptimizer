@@ -136,7 +136,7 @@ All device fields come directly from the i3 `getTagInformationByTagOrSerialId` A
 |-------|-----------|-------|
 | Relay | Node.js, CommonJS, Express, ws | No TypeScript, no ESM, no build step |
 | Backend | Python, FastAPI, uvicorn, pandas, openpyxl, pydantic | No SQLAlchemy, no databases |
-| Frontend | HTML, CSS, TypeScript → compiled JS | No React, no Vue, no Astro, no CDN fonts |
+| Frontend | HTML, CSS, TypeScript → compiled JS | No React, no Vue, no Astro; Google Fonts (Montserrat/Merriweather) via index.html only |
 | Extension | Firefox MV2, unpacked | Use `browser.*` API, never `chrome.*`. Load via `about:debugging > This Firefox > Load Temporary Add-on > manifest.json`. No signing needed. Reloads on Firefox restart — tech loads once per shift. |
 | Excel | openpyxl write `.value` only | Never touch cell formatting |
 
@@ -200,22 +200,27 @@ All device fields come directly from the i3 `getTagInformationByTagOrSerialId` A
 
 ---
 
-## Design — LISD brand (confirmed from lisd.net/production2 source CSS)
+## Design — LISD brand (Style Guide v3, lisd.net/production2)
 
 ```css
---lisd-navy:       #073772;   /* primary color, headers, buttons */
---lisd-gold:       #f1b51c;   /* secondary accent, use sparingly */
---lisd-blue-link:  #3366CC;   /* interactive/focus */
---lisd-dark:       #102738;   /* heading text */
---lisd-gray-body:  #3a3a3a;   /* body text */
---lisd-gray-border:#D4D8E1;   /* input borders */
---lisd-gray-light: #F1F4F6;   /* page background */
---lisd-white:      #FFFFFF;
---lisd-green:      #0b6e27;   /* success */
---lisd-error:      #B63D4B;   /* error */
+--lisd-primary:   #073772;   /* primary color, headers, site header, light H1 */
+--lisd-secondary: #f1b51c;   /* CTA button bg, dark H1 */
+--lisd-text:      #373737;   /* body copy and labels (light) */
+--lisd-white:     #FFFFFF;   /* page background (light), card surface */
+--lisd-border:    #D4D8E1;   /* input borders (light) */
+--lisd-green:     #0b6e27;   /* success */
+--lisd-error:     #B63D4B;   /* error */
+
+/* Dark theme (html[data-theme="dark"]) */
+--bg-page:    #07111C;
+--bg-card:    #0D1B2A;
+--bg-input:   #0A1520;
+--border:     #1E3A5A;
+--text-main:  #E0EAF4;
+--text-label: #9DBBD6;
 ```
 
-Font: `Arial, "Helvetica Neue", Helvetica, sans-serif` — no CDN fonts, no Google Fonts, no proxima-nova.
+Fonts: Montserrat (body, labels, buttons, inputs) + Merriweather (headings h1–h4, status) via Google Fonts `<link>` tags in `frontend/index.html` only.
 
 Logo: `frontend/assets/lisd-logo.png` — file provided separately, use `<img>` tag only, no placeholder SVGs.
 

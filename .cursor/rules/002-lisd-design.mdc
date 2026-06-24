@@ -4,100 +4,143 @@ globs: ["frontend/**/*.html", "frontend/**/*.css", "frontend/**/*.ts", "frontend
 alwaysApply: true
 ---
 
-# LISD Brand Design System
+# LISD Brand Design System (Style Guide v3)
 
 This tool is an official LISD internal staff application. Every visual decision must match the Lewisville ISD brand identity as confirmed from the live LISD style guide (lisd.net/production2). Staff who use this tool also use official LISD websites daily — the UI must look like it belongs to the same organization.
 
-## Color Tokens — confirmed from LISD CMS source CSS, use exactly
+## Color Tokens — Style Guide v3, use exactly
 
 ```css
-/* Primary brand — from :root CSS variables on lisd.net */
---lisd-navy:        #073772;   /* --primary-color: the dominant brand color; headers, card surfaces, nav bars, active states */
---lisd-gold:        #f1b51c;   /* --secondary-color: accent only — highlights, focus rings, badge indicators; never large fills */
+/* Primary brand — from :root CSS variables on lisd.net/production2 (live computed 2026-06-23) */
+/* HSL source: --primary-color-h: 213.08; --primary-color-s: 88.43%; --primary-color-l: 23.73%; */
+--lisd-primary:   #073772;   /* --primary-color: headers, nav bars, site header, heading text (light) */
+--lisd-secondary: #f1b51c;   /* --secondary-color: CTA button bg, dark-mode H1 */
+--lisd-text:      #373737;   /* body copy and labels (light theme) */
 
-/* Interactive blues — from CMS component styles */
---lisd-blue-mid:    #254A95;   /* interactive blue used in chat bubbles and links on dark backgrounds */
---lisd-blue-link:   #3366CC;   /* hyperlink color on white backgrounds */
---lisd-blue-hover:  #122C4B;   /* hover state for dark buttons */
-
-/* Neutrals — from CMS named color map */
---lisd-dark:        #102738;   /* dark blue-black for heading text on light backgrounds */
---lisd-gray-body:   #3a3a3a;   /* body text color on white */
---lisd-gray-mid:    #595959;   /* secondary/muted text */
---lisd-gray-border: #D4D8E1;   /* input borders and card borders (named: input-border) */
---lisd-gray-light:  #F1F4F6;   /* page background (named: lightest-gray) */
---lisd-white:       #FFFFFF;   /* card surfaces, text on dark backgrounds */
+/* Light theme surfaces */
+--lisd-white:     #FFFFFF;   /* page background (light), card surface, input background */
+--lisd-border:    #D4D8E1;   /* input and card borders (light) */
+--lisd-border-form: #DCDDE0; /* .fsFormField border (live form pages) */
+--lisd-field-error: #D34147; /* .fsFormFieldError, required asterisk, inline validation */
 
 /* Status — from CMS alert/error styles */
---lisd-green:       #0b6e27;   /* success text and left-border accents */
---lisd-error:       #B63D4B;   /* error text */
---lisd-error-bg:    #CF4656;   /* error badges and destructive button backgrounds */
---lisd-warning:     #E57200;   /* warning states */
+--lisd-green:     #0b6e27;   /* success text and left-border accents */
+--lisd-error:     #B63D4B;   /* error text */
+--lisd-error-bg:  #CF4656;   /* error badges and destructive button backgrounds */
+--lisd-warning:   #E57200;   /* warning states */
+```
+
+## Dark Mode Palette
+
+Apply via `html[data-theme="dark"]` CSS variable block. Default theme on first load follows `prefers-color-scheme` unless the user has saved a preference in `localStorage`.
+
+```css
+--bg-page:    #07111C;   /* page background (dark) */
+--bg-card:    #0D1B2A;   /* card surface (dark) */
+--bg-input:   #0A1520;   /* input background (dark) */
+--border:     #1E3A5A;   /* input and card borders (dark) */
+--text-main:  #E0EAF4;   /* body text (dark) */
+--text-label: #9DBBD6;   /* labels and secondary text (dark) */
+--lisd-field-error: #D34147; /* validation text — same in both themes */
 ```
 
 ## Typography
 
-**Primary font stack (always use this order):**
+Load Montserrat (400, 600, 700) and Merriweather (400) via Google Fonts `<link>` tags in `frontend/index.html` only — no `@import` in CSS, no font loading from other files.
+
+**Font stacks:**
 ```css
-font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+/* Body copy */
+font-family: 'Montserrat', 'Segoe UI', sans-serif;
+
+/* Headings (h1–h4) and page title */
+font-family: 'Merriweather', Georgia, serif;
+
+/* Labels, buttons, inputs */
+font-family: 'Montserrat', 'Segoe UI', sans-serif;
 ```
 
-The LISD CMS uses `proxima-nova` (Adobe licensed) but this is unavailable on LISD Windows machines without a separate install. The CMS fallback chain is `"Helvetica Neue", Helvetica, Arial, sans-serif`. For a local Windows tool, lead with `Arial` since it is guaranteed present.
-
 Rules:
-- Never use Inter, Roboto, Open Sans, Lato, Montserrat, or any CDN font import
-- Never use `system-ui` or `-apple-system` — this runs on Windows only
-- Monospace (asset tags, serials, ticket numbers): `"Courier New", Courier, monospace`
-- Heading weight: bold (700). Body weight: regular (400). Labels: 400 or 500.
+- Montserrat for body copy, labels, buttons, and inputs
+- Merriweather for headings (h1–h4), page title, and status text
+- Monospace (asset tags, serials, ticket numbers): `"Courier New", Courier, monospace` — apply via `#asset-tag` selector
+- Label weight: 600. Heading weight: 700. Body weight: 400.
+- Body: 19.125px, line-height 1.75, letter-spacing 0.19px
+- Page title (H1): 46.75px, line-height 1.15, letter-spacing -0.94px, margin-bottom 24px (8px grid)
 
 ## Layout
 
-- Page background: `--lisd-gray-light` (#F1F4F6)
-- Each workflow = one centered card, white surface, max-width 480px for intake forms
-- Card has 4px top border accent in `--lisd-navy`, 1px border `--lisd-gray-border`, border-radius 4px
+- Page background: `#FFFFFF` (light) / `var(--bg-page)` (dark)
+- Full-width `.site-header` with logo; no inner card header
+- `.content-column`: max-width 700px, centered, block flow (not flex-centered widget)
+- `.card`: max-width 500px intake form surface; clean card with no 4px top-accent border
 - Internal card padding: 32px top/bottom, 32px left/right
 - 8px base grid for all spacing
 - No sidebar, no tabs, no navigation — single-purpose per screen
 
 ## Component Specs
 
-**Inputs:**
-- Border: 1px solid `--lisd-gray-border` (#D4D8E1); focused: 2px solid `--lisd-blue-link` (#3366CC)
-- Background: `--lisd-white`; label above, `--lisd-gray-body`, Arial 13px font-weight 500
-- Height: 40px; border-radius: 4px; padding: 0 12px
-
-**Primary button (Run Intake, Submit):**
-- Background: `--lisd-navy` (#073772); text: `--lisd-white`; Arial bold 14px; letter-spacing: 0.02em
-- Hover: `--lisd-blue-hover` (#122C4B)
-- Disabled: `--lisd-gray-border` background, `--lisd-gray-mid` text, cursor: not-allowed, opacity: 0.6
-- Height: 40px; border-radius: 4px; no extra box-shadow
-
-**Header bar:**
-- Background: `--lisd-navy` (#073772); text: white; height: 48px
-- Left-aligned logo (supplied separately) with 16px horizontal padding
+**Site header:**
+- Background: `var(--lisd-primary)` (#073772); full width
+- Logo: `max-height: 40px`; padding 12px 24px; min-height 60px
 - No navigation links
 
-**Status area:**
-- Arial 13px, `--lisd-gray-body`; inline text updates, no animation
-- Success: 3px left border `--lisd-green` (#0b6e27), background rgba(11,110,39,0.06)
-- Error: 3px left border `--lisd-error` (#B63D4B), background rgba(182,61,75,0.06)
+**Page title (H1):**
+- Merriweather, weight 700; 46.75px; line-height 1.15; letter-spacing -0.94px
+- Margin-bottom: 24px (8px grid)
+- Light: `var(--lisd-primary)` (#073772)
+- Dark: `var(--lisd-secondary)` (#f1b51c)
 
-**Gold accent usage (`--lisd-gold` #f1b51c):**
-- Use only for small UI signals: focus ring on the asset tag input (the scanner target), active field indicator
-- Never use as a button background or large fill
-- Always pair with `--lisd-navy` or `--lisd-dark` text for contrast
+**Inputs:**
+- Border-radius: 0 (square corners — TRC intake form; live `.fsFormField` uses 3px)
+- Border: 1px solid `var(--lisd-border-form)` (light) / `var(--border)` (dark)
+- Background: `var(--lisd-white)` (light) / `var(--bg-input)` (dark)
+- Focus: `outline: 3px solid #000000; outline-offset: 3px; border-color: transparent` (live `.fsFormField:focus`)
+- Label above input: Montserrat 16.875px weight 700; color `var(--lisd-text)` (light) / `var(--text-label)` (dark)
+- Padding: 7px 12px; full width within card
+
+**Primary button — Button-2 pill (Run Intake, Submit):**
+- Background: `var(--lisd-secondary)` (#f1b51c); text: `var(--lisd-primary)` (#073772)
+- Montserrat bold (700); uppercase; letter-spacing: 0.1em
+- Border-radius: 100px (pill shape); padding: 10px 24px (live `.button-*`)
+- Focus: `outline: 3px solid #000; outline-offset: 3px` (matches live `.fsFormField:focus` / input focus)
+- Hover: `#d9a019` (darkened gold)
+- Disabled: muted gray background and text, cursor: not-allowed, reduced opacity
+- Button hover transition (0.2s) is acceptable
+
+**Theme toggle:**
+- Fixed bottom-right; minimal icon or text button; Montserrat; respects both themes
+- Border-radius: 50px (compact pill — smaller than 100px CTA; fits fixed corner utility control without competing with primary button)
+- Focus: `outline: 3px solid #000; outline-offset: 3px` (same focus ring as inputs and CTA)
+- Sets `data-theme` on `<html>` and persists to `localStorage` key `trc-theme`
+
+**Status area:**
+- Merriweather 13px; inline text updates, no animation on status text
+- No border-radius on `#status` (square corners)
+- Light success: 3px left border `var(--lisd-green)`, background rgba(11,110,39,0.06)
+- Light error: 3px left border `var(--lisd-error)`, background rgba(182,61,75,0.06)
+- Dark success: 3px left border `var(--lisd-green)`, background rgba(11,110,39,0.15), text `var(--text-main)`
+- Dark error: 3px left border `var(--lisd-error)`, background rgba(182,61,75,0.15), text `var(--text-main)`
+- Status error accent: `--lisd-error` (#B63D4B) — distinct from form field validation errors (`--lisd-field-error` #D34147)
+
+**Gold accent usage (`--lisd-secondary` #f1b51c):**
+- Primary CTA button background (Button-2 pill)
+- Page title color in dark theme
+- Do not use as large decorative fills unrelated to interactive elements
 
 ## Accessibility
 
-- All text on `--lisd-navy` backgrounds must use `--lisd-white` — confirmed 5:1+ contrast ratio
+- All text on `var(--lisd-primary)` backgrounds must use `var(--lisd-white)` or sufficient contrast — confirmed 5:1+ ratio
+- Focus pattern on `input[type="text"]`, `#run-intake`, and `#theme-toggle`: `outline: 3px solid #000000; outline-offset: 3px`; inputs also set `border-color: transparent` on focus (live `.fsFormField:focus`)
 - All interactive elements must have visible focus state — never `outline: none` without a visible replacement
 - Every input must have an explicit `<label for="">` — no placeholder-as-label
 - Color alone never conveys state — always pair with a text label
+- Dark theme text colors must meet contrast requirements against dark surfaces
 
 ## Do not do
 
-- No Google Fonts or any CDN font import whatsoever
+- No Google Fonts loading outside `frontend/index.html` (no CSS `@import`, no JS font loaders)
 - No CSS animations or transitions on status text — plain DOM text updates only
+- No `border-radius` on `#status` — status area uses square corners
 - No gradients on the primary card surface
-- No border-radius larger than 4px on card or inputs (LISD visual language is clean and rectilinear)
-- No use of `--lisd-gold` for large backgrounds or primary actions
+- No network font loading from sources other than Google Fonts (Montserrat + Merriweather only)
