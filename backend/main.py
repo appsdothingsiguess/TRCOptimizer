@@ -11,6 +11,11 @@ EXCEL_PATH = Path(__file__).parent.parent / "data" / "macbook_intake.xlsx"
 app = FastAPI()
 
 
+@app.get("/health")
+async def health():
+    return {"ok": True}
+
+
 @app.post("/process")
 async def process_intake(request: ProcessRequest):
     try:

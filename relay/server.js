@@ -189,7 +189,7 @@ app.get("/debug-state", (req, res) => {
 
 app.get("/backend-health", async (req, res) => {
   try {
-    const response = await fetch("http://127.0.0.1:8000/", {
+    const response = await fetch("http://127.0.0.1:8000/health", {
       signal: AbortSignal.timeout(2000),
     });
     return res.json({ fastApiUp: true, status: response.status });
@@ -279,6 +279,6 @@ function startBackend() {
 
 startBackend();
 
-server.listen(PORT, () => {
-  console.log(`TRC_Opt relay listening on port ${PORT}`);
+server.listen(PORT, "127.0.0.1", () => {
+  console.log(`TRC_Opt relay listening on http://127.0.0.1:${PORT} (localhost only)`);
 });

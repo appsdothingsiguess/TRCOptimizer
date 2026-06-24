@@ -2,11 +2,39 @@
 
 Use this guide when copying from your **dev machine** to the **TRC production workstation**.
 
-**Important:** Dev and production are different PCs. On dev you only **package and copy files**. **`npm install` and `pip install` run on production only** — never on dev as part of deployment.
+**Important:** Dev and production are different PCs. **`npm install` and `pip install` run on production only** — never on dev as part of deployment.
+
+## Preferred: Git pull (fastest)
+
+### Dev machine (after changes)
+
+1. Run **`package-for-production.bat`** (sanity-check package; `dist/` is not pushed).
+2. Commit and push branch **`deploy/production`**.
+
+### Production PC — one-time setup
+
+```bat
+git clone https://github.com/appsdothingsiguess/TRCOptimizer.git C:\TRC_Opt
+cd C:\TRC_Opt
+git checkout deploy/production
+setup-production.bat
+git update-index --skip-worktree data/macbook_intake.xlsx
+```
+
+Load Firefox extension, log in to i3, run `start.bat`.
+
+### Production PC — every update
+
+```bat
+cd C:\TRC_Opt
+git pull origin deploy/production
+```
+
+Reload Firefox extension, then `start.bat`. Skip `setup-production.bat` unless `package.json` or `requirements.txt` changed.
 
 ---
 
-## What goes to production
+## Fallback: USB copy
 
 The **`package-for-production.bat`** script builds a clean folder at:
 
@@ -61,9 +89,9 @@ You do **not** need Node or Python installed on dev for packaging (only to run t
 
 5. Log in to [ims.lisd.net](https://ims.lisd.net) in Firefox.
 
-6. Double-click **`start.bat`**. Note the printed network URL for other devices.
+6. Double-click **`start.bat`** — opens `http://localhost:4321` (localhost only; no firewall prompt).
 
-7. **Firewall** (if other PCs/tablets use the form): allow inbound TCP **4321** on the production PC (Private network profile).
+No Windows Firewall rule is required — the relay does not accept connections from other devices.
 
 ---
 
@@ -113,9 +141,8 @@ After restart, reload the Firefox extension if Firefox was left open.
 
 | Check | URL / action |
 |-------|----------------|
-| Form (this PC) | `http://localhost:4321` |
-| Form (network) | `http://<device-ip>:4321` |
-| Debug panel | `http://<device-ip>:4321/debug` |
+| Form | `http://localhost:4321` |
+| Debug panel | `http://localhost:4321/debug` |
 | Backend health | `http://localhost:4321/backend-health` |
 
 **Extension not connected** → relay not running, or extension not loaded in Firefox on **this** PC.
@@ -128,6 +155,5 @@ After restart, reload the Firefox extension if Firefox was left open.
 - [ ] `data\macbook_intake.xlsx` present
 - [ ] Firefox extension loaded
 - [ ] Logged in to i3
-- [ ] `start.bat` shows network IP
+- [ ] `start.bat` opens localhost form
 - [ ] Test intake writes a row to Excel
-- [ ] Firewall rule for port 4321 (if using other devices on LAN)

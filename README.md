@@ -116,31 +116,18 @@ cd C:\TRC_Opt\relay
 node server.js
 ```
 
-`start.bat` prints network URLs in its window, then opens the form in your default browser using the PC’s **IPv4 address** (e.g. `http://192.168.1.50:4321`). If no IP is found, it falls back to `localhost`. Leave that window open or note the printed URL so other devices know what to use.
+`start.bat` opens **`http://localhost:4321`** in your browser.
 
 The relay:
 
-- Listens on **port 4321** (frontend + WebSockets)
-- Spawns **FastAPI on 127.0.0.1:8000** automatically (not reachable from other machines)
+- Listens on **127.0.0.1:4321 only** (localhost — no LAN access, no Windows Firewall prompt)
+- Spawns **FastAPI on 127.0.0.1:8000** automatically (internal only)
 
 ### Accessing the app
 
-| Where you are | URL to use |
-|---------------|------------|
-| **On the PC running the relay** | `http://localhost:4321` |
-| **Another device on the LISD network** | `http://<device-ip>:4321` |
+Use **`http://localhost:4321`** on the PC where the relay runs. Form, extension, and Excel must all be on **this same machine**.
 
-`localhost` only works on the machine where Node is running. From a phone, tablet, or another workstation, you **must** use that PC’s IP address plus port **4321** — for example `http://192.168.1.50:4321`.
-
-**Find the device IP (on the host PC):**
-
-```bat
-ipconfig
-```
-
-Use the **IPv4 Address** for your active adapter (usually Ethernet or Wi‑Fi on the LISD LAN).
-
-**Firewall:** Other machines cannot connect until Windows Firewall allows inbound TCP **4321** on the host (private/LAN profile). FastAPI stays on `127.0.0.1` and is never opened to the network — only the relay port is shared.
+Network access from other devices is intentionally disabled so Node does not trigger Windows Firewall / IT approval prompts.
 
 ### End-of-day restart (optional)
 
@@ -152,7 +139,7 @@ Use the **IPv4 Address** for your active adapter (usually Ethernet or Wi‑Fi on
 
 1. **Start the stack** — run `start.bat` (or confirm the relay is already running).
 2. **Firefox** — load the extension if Firefox was restarted; stay logged in to i3.
-3. **Open the form** — on the host PC use `http://localhost:4321`; from anywhere else on the network use `http://<device-ip>:4321` (not `localhost`).
+3. **Open the form** — `http://localhost:4321` (same PC as relay and Firefox).
 4. **Scan / type asset tag** — focus starts in the Asset Tag field.
 5. **Enter IIQ ticket and tech initials** — **Run Intake** enables when all three fields are filled.
 6. **Click Run Intake** — watch the status area for progress, then success or error.
@@ -166,7 +153,6 @@ Success shows serial, product, school, and break count. The row is already in Ex
 
 | Symptom | Likely cause | Fix |
 |---------|----------------|-----|
-| **Page won’t load from another PC** | Using `localhost` off the host, or firewall blocking 4321 | Use `http://<device-ip>:4321`; allow port 4321 in Windows Firewall on the host |
 | **Extension not connected** on Run Intake | Relay not running, or extension not loaded | Start relay; reload add-on via `about:debugging` |
 | **Not logged in to i3** | No JWT in Firefox | Log in at ims.lisd.net in the same Firefox profile |
 | **Token expired** | i3 session older than ~10 hours | Log out and back in to i3 |
@@ -176,14 +162,15 @@ Success shows serial, product, school, and break count. The row is already in Ex
 
 ### Debug page
 
-With the relay running, open the debug page using the same host rule as the main form:
+With the relay running, open:
 
-- On the host: `http://localhost:4321/debug`
-- Over the network: `http://<device-ip>:4321/debug`
+```
+http://localhost:4321/debug
+```
 
 Shows extension connection status, current session, last intake result, and recent relay/extension logs.
 
-Health check: `http://<device-ip>:4321/backend-health` (or `localhost` on the host).
+Health check: `http://localhost:4321/backend-health`
 
 ---
 

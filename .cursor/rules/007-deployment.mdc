@@ -1,0 +1,62 @@
+---
+description: Production deploy workflow — package, commit, push deploy/production; user pulls on TRC PC
+alwaysApply: true
+---
+
+# Production Deployment Workflow
+
+Dev machine and production PC are **different machines**. Production updates via **git pull** on branch **`deploy/production`** — not USB unless git is unavailable.
+
+## Agent obligation after production-affecting changes
+
+When you change any runtime file (`backend/`, `relay/`, `frontend/`, `extension/`, `start.bat`, `restart.bat`, `setup-production.bat`, `data/macbook_intake.xlsx` template):
+
+1. **Run** `package-for-production.bat` from repo root (non-interactive: `cmd /c "call package-for-production.bat < NUL"`). Confirms `dist\TRC_Opt\` packages cleanly. `dist/` is gitignored — not pushed.
+2. **Commit** on branch **`deploy/production`** with a clear message.
+3. **Push** to `origin deploy/production`.
+4. **Tell the user** to run on the production PC:
+   ```bat
+   cd C:\TRC_Opt
+   git pull origin deploy/production
+   ```
+   Then reload the Firefox extension and run `start.bat` (or `restart.bat`).
+
+Do **not** push to `main` for production deploys unless the user explicitly asks.
+
+Do **not** tell the user to run `setup-production.bat` on pull unless `relay/package.json` or `backend/requirements.txt` changed.
+
+Do **not** commit or overwrite production Excel data — `data/macbook_intake.xlsx` on production is protected with `git update-index --skip-worktree` (one-time on production).
+
+## Production PC one-time git setup
+
+```bat
+git clone https://github.com/appsdothingsiguess/TRCOptimizer.git C:\TRC_Opt
+cd C:\TRC_Opt
+git checkout deploy/production
+setup-production.bat
+git update-index --skip-worktree data/macbook_intake.xlsx
+```
+
+Load Firefox extension, log in to i3, run `start.bat`. Use **`http://localhost:4321`** only (relay binds `127.0.0.1`).
+
+## Production PC every update
+
+```bat
+cd C:\TRC_Opt
+git pull origin deploy/production
+```
+
+Reload extension in `about:debugging`, then `start.bat`.
+
+## Branch policy
+
+| Branch | Purpose |
+|--------|---------|
+| `main` | Development history |
+| `deploy/production` | What the TRC production PC pulls |
+
+## Localhost-only (no IT firewall prompts)
+
+- Relay: `127.0.0.1:4321`
+- Extension HTTP: `http://127.0.0.1:4321/...` (not `localhost` — Firefox IPv6 mismatch)
+- Extension WebSocket: `ws://localhost:4321/ws` (works as-is)

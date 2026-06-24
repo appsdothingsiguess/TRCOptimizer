@@ -1,8 +1,8 @@
 "use strict";
 
 const RELAY_WS   = "ws://localhost:4321/ws";
-const RELAY_HTTP = "http://localhost:4321/extension-data";
-const RELAY_LOG  = "http://localhost:4321/extension-log";
+const RELAY_HTTP = "http://127.0.0.1:4321/extension-data";
+const RELAY_LOG  = "http://127.0.0.1:4321/extension-log";
 const RECONNECT_DELAY_MS = 3000;
 
 let ws = null;
